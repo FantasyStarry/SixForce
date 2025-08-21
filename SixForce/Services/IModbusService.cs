@@ -1,0 +1,23 @@
+﻿using SixForce.Models;
+using System.Collections.Generic;
+
+namespace SixForce.Services
+{
+    public interface IModbusService: IDisposable
+    {
+        bool IsConnected { get; }
+        byte SlaveId { get; set; } // 支持动态从机地址
+        void Connect(string portName, int baudRate);
+        void Disconnect();
+        void StartReading(
+            Action<Dictionary<string, (string mvValue, string forceValue)>> dataReceivedCallback, 
+            Action<Exception> errorCallback,
+            int interval = 500);
+        void StopReading();
+        void ClearChannel(int channel);
+        void SetRegisterMap(ModbusRegisterMap map);
+        Task<int[,]> ReadDecouplingMatrixAsync();
+        Task WriteDecouplingMatrixAsync(int[,] matrix);
+        Task SaveParametersAsync();
+    }
+}

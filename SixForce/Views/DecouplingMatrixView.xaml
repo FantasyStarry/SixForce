@@ -1,0 +1,106 @@
+﻿<UserControl x:Class="SixForce.Views.DecouplingMatrixView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <!-- 按钮样式 -->
+        <Style TargetType="Button">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Background" Value="#42A5F5"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="15,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <!-- DataGrid 样式 -->
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#F9F9F9"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="GridLinesVisibility" Value="All"/>
+        </Style>
+
+        <!-- 列标题样式 -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#42A5F5"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8,4"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题区 -->
+        <Border Grid.Row="0" Background="#42A5F5" Padding="12">
+            <TextBlock Text="解耦系数编辑" FontSize="22" FontWeight="Bold" 
+                       Foreground="White" HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- 按钮区 -->
+        <Border Grid.Row="1" Padding="10" Background="#F5F5F5">
+            <UniformGrid Columns="4" HorizontalAlignment="Center">
+                <Button Content="创建文件" Command="{Binding CreateFileCommand}"/>
+                <Button Content="读取文件" Command="{Binding ReadFileCommand}"/>
+                <Button Content="写入变送器" Command="{Binding WriteToDeviceCommand}"/>
+                <Button Content="读取变送器" Command="{Binding ReadFromDeviceCommand}"/>
+            </UniformGrid>
+        </Border>
+
+        <!-- 矩阵显示 -->
+        <Border Grid.Row="2" Padding="8" 
+                BorderBrush="#E0E0E0" 
+                BorderThickness="1" 
+                CornerRadius="6"
+                VerticalAlignment="Stretch"
+                HorizontalAlignment="Stretch">
+            <DataGrid ItemsSource="{Binding MatrixRows}" 
+                      AutoGenerateColumns="False" 
+                      CanUserAddRows="False"
+                      ColumnWidth="*" 
+                      HeadersVisibility="Column"   
+                      VerticalAlignment="Stretch" 
+                      HorizontalAlignment="Stretch">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Row" 
+                                        Binding="{Binding RowIndex}" 
+                                        IsReadOnly="True" 
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Col1"
+                                        Binding="{Binding Values[0], UpdateSourceTrigger=PropertyChanged}"
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Col2" 
+                                        Binding="{Binding Values[1], UpdateSourceTrigger=PropertyChanged}" 
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Col3" 
+                                        Binding="{Binding Values[2], UpdateSourceTrigger=PropertyChanged}" 
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Col4" 
+                                        Binding="{Binding Values[3], UpdateSourceTrigger=PropertyChanged}" 
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Col5" 
+                                        Binding="{Binding Values[4], UpdateSourceTrigger=PropertyChanged}" 
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Col6" 
+                                        Binding="{Binding Values[5], UpdateSourceTrigger=PropertyChanged}"
+                                        Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

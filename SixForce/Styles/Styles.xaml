@@ -1,0 +1,199 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- 全局圆角 ComboBox -->
+    <Style TargetType="ComboBox">
+        <Setter Property="Background" Value="#F5F6FA"/>
+        <Setter Property="BorderBrush" Value="#DDD"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="5,2"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Border CornerRadius="6" 
+                        Background="{TemplateBinding Background}" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <!-- 将整个区域设置为可点击的ToggleButton -->
+                            <ToggleButton x:Name="MainToggle"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      Focusable="false"
+                                      ClickMode="Press"
+                                      IsChecked="{Binding Path=IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"/>
+
+                            <!-- 只保留箭头部分的ToggleButton -->
+                            <ToggleButton x:Name="ArrowToggle"
+                                      HorizontalAlignment="Right"
+                                      Width="24"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      Focusable="false"
+                                      ClickMode="Press"
+                                      IsChecked="{Binding Path=IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                <!-- 使用主题色 -->
+                                <Path x:Name="Arrow" 
+                                  Fill="#4CAF50"  
+                                  Data="M 0 0 L 4 4 L 8 0 Z" 
+                                  HorizontalAlignment="Center" 
+                                  VerticalAlignment="Center"/>
+                            </ToggleButton>
+
+                            <ContentPresenter Margin="5,0,30,0"  
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Left"
+                                          Content="{TemplateBinding SelectionBoxItem}"/>
+
+                            <Popup x:Name="PART_Popup"
+                               Placement="Bottom"
+                               IsOpen="{TemplateBinding IsDropDownOpen}"
+                               AllowsTransparency="True"
+                               Focusable="False"
+                               PopupAnimation="Fade"
+                               Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                <Border CornerRadius="6" 
+                                    BorderBrush="#DDD" 
+                                    BorderThickness="1" 
+                                    Background="White"
+                                    SnapsToDevicePixels="True">
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </Border>
+
+                    <!-- 鼠标悬停和按下状态 -->
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="MainToggle" Property="Background" Value="#E8F5E9"/>
+                        </Trigger>
+                        <Trigger Property="IsDropDownOpen" Value="True">
+                            <Setter TargetName="MainToggle" Property="Background" Value="#C8E6C9"/>
+                            <Setter TargetName="Arrow" Property="Fill" Value="#2E7D32"/>
+                            <Setter TargetName="Arrow" Property="Data" Value="M 0 4 L 4 0 L 8 4 Z"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!-- 全局圆角 TextBox -->
+    <Style TargetType="TextBox">
+        <Setter Property="Background" Value="#F5F6FA"/>
+        <Setter Property="BorderBrush" Value="#DDD"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="5,2"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border CornerRadius="6"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="0"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 按钮样式 -->
+    <Style TargetType="Button">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Padding" Value="5,0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border" 
+                            Background="{TemplateBinding Background}" 
+                            CornerRadius="6"
+                            BorderThickness="0">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Opacity" Value="0.85"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Opacity" Value="0.7"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!-- 数据表格样式 -->
+    <Style x:Key="DataGridStyle" TargetType="DataGrid">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="#DDD"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="RowBackground" Value="White"/>
+        <Setter Property="AlternatingRowBackground" Value="#F5F6FA"/>
+        <Setter Property="ColumnHeaderHeight" Value="32"/>
+        <Setter Property="RowHeight" Value="36"/>
+        <Setter Property="GridLinesVisibility" Value="None"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+        <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="Foreground" Value="#333"/>
+        <Setter Property="Margin" Value="5"/>
+        <!-- 禁用选择功能 -->
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="CellStyle">
+            <Setter.Value>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="Padding" Value="5"/>
+                    <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="DataGridCell">
+                                <Border Background="{TemplateBinding Background}">
+                                    <ContentPresenter VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#00E8F5E9"/>
+                            <Setter Property="BorderBrush" Value="#004CAF50"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ColumnHeaderStyle">
+            <Setter.Value>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#4CAF50"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Padding" Value="5"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="DataGridColumnHeader">
+                                <Border CornerRadius="6,6,0,0" 
+                                    Background="{TemplateBinding Background}" 
+                                    BorderThickness="{TemplateBinding BorderThickness}">
+                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>Assets\Images\favicon.ico</ApplicationIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="Assets\Images\favicon.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Assets\Images\favicon.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="ClosedXML" Version="0.105.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
+		<PackageReference Include="System.Drawing.Common" Version="9.0.8" />
+		<PackageReference Include="System.IO.Ports" Version="9.0.8" />
+		<None Update="Configs\register_config.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,53 @@
+﻿{
+  "DR304A": {
+    "ForceStartAddress": 2560,
+    "ForceRegisterCount": 12,
+    "MvStartAddress": 2640,
+    "MvRegisterCount": 12,
+    "ClearFunctionAddress": 2592,
+    "ClearChannelStartCode": 1,
+    "ClearAllChannelsCode": 7,
+    "DecouplingStartAddress": 1616,
+    "DecouplingRowCount": 6,
+    "ElementsPerRow": 6,
+    "RegistersPerElement": 2,
+    "SkipRegistersPerRow": 8,
+    "SaveParametersAddress": 2592,
+    "SaveParametersValue": [
+      40
+    ]
+  },
+  "嵌入式": {
+    "ForceStartAddress": 2560,
+    "ForceRegisterCount": 12,
+    "MvStartAddress": 2760,
+    "MvRegisterCount": 12,
+    "ClearFunctionAddress": 1574,
+    "ClearChannelStartCode": 21,
+    "ClearAllChannelsCode": 27,
+    "DecouplingStartAddress": 1616,
+    "DecouplingRowCount": 6,
+    "ElementsPerRow": 6,
+    "RegistersPerElement": 2,
+    "SkipRegistersPerRow": 8,
+    "SaveParametersAddress": 1574,
+    "SaveParametersValue": [
+      20
+    ]
+  },
+  "503B": {
+    "ForceStartAddress": 2020,
+    "ForceRegisterCount": 12,
+    "MvStartAddress": 2000,
+    "MvRegisterCount": 12,
+    "ClearFunctionAddress": 3000,
+    "ClearChannelStartCode": 31,
+    "ClearAllChannelsCode": 30,
+    
+    "SaveParametersAddress": 3000,
+    "SaveParametersValue": [
+      71
+    ]
+  }
+  
+}

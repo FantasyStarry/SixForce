@@ -1,0 +1,65 @@
+# Visual Studio
+*.csproj.user
+*.suo
+*.user
+*.sln.docstates
+bin/
+obj/
+*.vs/
+.vscode/
+*.cache
+*.pdb
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Rider
+.idea/
+*.sln.iml
+
+# .NET Core
+*.csproj.bak
+[Dd]ebug/
+[Rr]elease/
+[Pp]ublish/
+*.publishsettings
+*.pubxml
+*.pubxml.user
+
+# NuGet
+packages/
+*.nupkg
+NuGet.Config
+.nuget/
+
+# ASP.NET Core
+wwwroot/
+*.log
+logs/
+*.sqlite
+*.db
+
+# Test results
+TestResults/
+*.trx
+*.xml
+*.coverage
+*.coveragexml
+
+# Environment-specific
+appsettings.*.json
+secrets.json
+*.env
+.env.*
+!.env.example
+
+# Miscellaneous
+*.tmp
+*.bak
+*.cache
+Thumbs.db
+[Dd]esktop.ini

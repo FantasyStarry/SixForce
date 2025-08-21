@@ -1,0 +1,100 @@
+﻿<Window x:Class="SixForce.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="700" Width="1200"
+        Icon="/Assets/Images/favicon.ico"
+        Background="#F5F6FA">
+    <Grid Margin="5">
+        <!-- 上下布局 -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1.5*"/>
+            <RowDefinition Height="8.5*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" 
+            Background="White" 
+            Margin="5"
+            CornerRadius="12"
+            Padding="5">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" ShadowDepth="3" Opacity="0.25"/>
+            </Border.Effect>
+            <Grid>
+                <!-- 下拉框，绝对定位到左侧 -->
+
+                <StackPanel HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Margin="10,0,0,0">
+                    <TextBlock Text="变速器型号"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontSize="14"/>
+                    <ComboBox Width="160"
+                      Height="36"
+                      FontSize="16"
+                      ItemsSource="{Binding Products}"
+                      SelectedItem="{Binding SelectedProduct}"/>
+                </StackPanel>
+
+                <!-- 标题，居中于整个 Grid -->
+                <TextBlock Text="DST德森特标定软件" 
+                   FontSize="36"
+                   FontWeight="Bold"
+                   Foreground="#333"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- 下半部分 -->
+        <Grid Grid.Row="1" Margin="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="2.5*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左 -->
+            <Border x:Name="LeftArea" Grid.Column="0" 
+                    Background="White" 
+                    Margin="5"
+                    CornerRadius="12"
+                    Padding="5">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="3" Opacity="0.2"/>
+                </Border.Effect>
+            </Border>
+
+            <!-- 中 -->
+            <Border Grid.Column="1" 
+                    Background="White" 
+                    Margin="5"
+                    CornerRadius="12"
+                    Padding="5">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.2"/>
+                </Border.Effect>
+                <TextBlock Text="中 (6)" 
+                           VerticalAlignment="Center" 
+                           HorizontalAlignment="Center" 
+                           Foreground="#444"/>
+            </Border>
+
+            <!-- 右 -->
+            <Border
+                x:Name="RightArea"
+                Grid.Column="2" 
+                    Background="White" 
+                    Margin="5"
+                    CornerRadius="12"
+                    Padding="5">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.2"/>
+                </Border.Effect>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>
