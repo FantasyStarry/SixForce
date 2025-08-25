@@ -1,7 +1,5 @@
 ﻿using SixForce.Models;
-using System.IO;
 using System.IO.Ports;
-using System.Diagnostics;
 
 namespace SixForce.Services
 {

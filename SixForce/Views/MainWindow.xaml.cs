@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SixForce.Services;
 using SixForce.ViewModels;
 using System.Windows;
 

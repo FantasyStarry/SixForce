@@ -1,5 +1,4 @@
-﻿using SixForce.Services;
-using SixForce.ViewModels;
+﻿using SixForce.ViewModels;
 using System.Windows.Controls;
 
 namespace SixForce.Views

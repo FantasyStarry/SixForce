@@ -2,7 +2,6 @@
 using SixForce.Services;
 using SixForce.ViewModels;
 using SixForce.Views;
-using System;
 using System.Windows;
 
 namespace SixForce

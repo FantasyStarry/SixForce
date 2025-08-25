@@ -1,5 +1,4 @@
 ﻿using SixForce.Models;
-using System.Collections.Generic;
 
 namespace SixForce.Services
 {
