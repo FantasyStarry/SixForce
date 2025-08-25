@@ -33,7 +33,7 @@ namespace SixForce.ViewModels
         }
 
         [RelayCommand]
-        private async void ReadFromDevice()
+        private async Task ReadFromDevice()
         {
             try
             {
@@ -54,7 +54,7 @@ namespace SixForce.ViewModels
         }
 
         [RelayCommand]
-        private async void WriteToDevice()
+        private async Task WriteToDevice()
         {
             try
             {
