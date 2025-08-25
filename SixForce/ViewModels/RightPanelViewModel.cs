@@ -138,7 +138,7 @@ namespace SixForce.ViewModels
             window.ShowDialog();
         }
 
-        private string _lastChannel = null;
+        private string _lastChannel = string.Empty;
 
         [RelayCommand]
         private void SaveCalibrationData()
@@ -241,7 +241,11 @@ namespace SixForce.ViewModels
                 workbook.SaveAs(excelPath);
 
                 // 生成图片
-                CreateTableImage(channels, mvValues, forceValues, imagePath);
+                CreateTableImage(
+                    channels.Select(c => c ?? string.Empty).ToList(),
+                    mvValues.Select(c => c ?? string.Empty).ToList(), 
+                    forceValues.Select(c => c ?? string.Empty).ToList(), 
+                    imagePath);
 
                 MessageBox.Show($"数据已保存到:\n{excelPath}\n{imagePath}", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
             }
