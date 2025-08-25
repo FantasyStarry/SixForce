@@ -276,6 +276,8 @@ namespace SixForce.Services
 
             if (response.Length < 6 || response[1] != 0x10)
                 throw new InvalidOperationException($"写入失败，响应无效: {BitConverter.ToString(response)}");
+
+            await Task.Delay(50); // 给设备一些时间处理
         }
 
         private byte[] BuildWriteRegistersRequest(byte slaveId, ushort startAddress, int[] values)
