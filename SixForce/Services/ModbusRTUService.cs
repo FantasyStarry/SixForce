@@ -1,5 +1,6 @@
 ﻿using SixForce.Models;
 using System.IO.Ports;
+using System.Windows;
 
 namespace SixForce.Services
 {
@@ -11,8 +12,13 @@ namespace SixForce.Services
 
         private ModbusRegisterMap? _map;
 
-        public void SetRegisterMap(ModbusRegisterMap map)
+        public void SetRegisterMap(String key, ModbusRegisterMap map)
         {
+            if (key == "503B")
+            {
+                MessageBox.Show("当前该变送器无法进行解耦录入功能");
+                return;
+            }
             _map = map;
         }
 

@@ -14,7 +14,7 @@ namespace SixForce.Services
             int interval = 500);
         void StopReading();
         void ClearChannel(int channel);
-        void SetRegisterMap(ModbusRegisterMap map);
+        void SetRegisterMap(String key, ModbusRegisterMap map);
         Task<int[,]> ReadDecouplingMatrixAsync();
         Task WriteDecouplingMatrixAsync(int[,] matrix);
         Task SaveParametersAsync();

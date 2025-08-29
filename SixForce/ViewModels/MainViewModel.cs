@@ -33,7 +33,7 @@ namespace SixForce.ViewModels
         {
             if (value != null && _configs != null && _configs.ContainsKey(value))
             {
-                _modbusService.SetRegisterMap(_configs[value]);
+                _modbusService.SetRegisterMap(value, _configs[value]);
             }
         }
 
@@ -52,7 +52,7 @@ namespace SixForce.ViewModels
             if (Products.Count > 0)
             {
                 SelectedProduct = Products[0]; // 默认选第一个
-                _modbusService.SetRegisterMap(_configs[SelectedProduct]); // 设置默认寄存器映射
+                _modbusService.SetRegisterMap(SelectedProduct, _configs[SelectedProduct]); // 设置默认寄存器映射
             }
         }
     }
