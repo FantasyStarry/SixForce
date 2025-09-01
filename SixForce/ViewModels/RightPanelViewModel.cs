@@ -41,10 +41,7 @@ namespace SixForce.ViewModels
         /// <summary>
         /// 订阅 LeftPanelViewModel
         /// </summary>
-        public void SubscribeToLeftPanel(LeftPanelViewModel leftPanel)
-        {
-            _leftPanelViewModel = leftPanel;
-        }
+        public void SubscribeToLeftPanel(LeftPanelViewModel leftPanel) => _leftPanelViewModel = leftPanel;
 
         // 选中的通道（默认7 = 全部）
         [ObservableProperty]
