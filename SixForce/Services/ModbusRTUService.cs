@@ -9,6 +9,7 @@ namespace SixForce.Services
         private readonly SerialPort _serialPort = new();
         private CancellationTokenSource? _cts;
         private Action<Dictionary<string, (string mvValue, string forceValue)>>? _callback;
+        private readonly object _serialLock = new();
 
         private ModbusRegisterMap? _map;
 
@@ -370,70 +371,73 @@ namespace SixForce.Services
             if (!_serialPort.IsOpen)
                 throw new InvalidOperationException("串口未打开，无法发送请求");
 
-            try
+            lock(_serialLock)
             {
-                //Trace.WriteLine("发送: " + BitConverter.ToString(request));
-                _serialPort.DiscardInBuffer();
-                _serialPort.Write(request, 0, request.Length);
-
-                int expectedLength = GetExpectedResponseLength(request);
-                byte[] response = new byte[expectedLength > 5 ? expectedLength : 5]; // 最小支持 5 字节异常响应
-                int bytesRead = 0;
-                DateTime startTime = DateTime.Now;
-                TimeSpan timeout = TimeSpan.FromSeconds(10); // 增加超时时间
-
-                while (bytesRead < expectedLength)
+                try
                 {
-                    if (DateTime.Now - startTime > timeout)
-                        throw new TimeoutException($"读取Modbus响应，预期长度：{expectedLength}，已接收：{bytesRead}");
+                    //Trace.WriteLine("发送: " + BitConverter.ToString(request));
+                    _serialPort.DiscardInBuffer();
+                    _serialPort.Write(request, 0, request.Length);
 
-                    int available = _serialPort.BytesToRead;
-                    if (available > 0)
+                    int expectedLength = GetExpectedResponseLength(request);
+                    byte[] response = new byte[expectedLength > 5 ? expectedLength : 5]; // 最小支持 5 字节异常响应
+                    int bytesRead = 0;
+                    DateTime startTime = DateTime.Now;
+                    TimeSpan timeout = TimeSpan.FromSeconds(10); // 增加超时时间
+
+                    while (bytesRead < expectedLength)
                     {
-                        int toRead = Math.Min(available, expectedLength - bytesRead);
-                        int n = _serialPort.Read(response, bytesRead, toRead);
-                        bytesRead += n;
-                        //Trace.WriteLine($"接收中: {BitConverter.ToString(response.Take(bytesRead).ToArray())}");
+                        if (DateTime.Now - startTime > timeout)
+                            throw new TimeoutException($"读取Modbus响应，预期长度：{expectedLength}，已接收：{bytesRead}");
+
+                        int available = _serialPort.BytesToRead;
+                        if (available > 0)
+                        {
+                            int toRead = Math.Min(available, expectedLength - bytesRead);
+                            int n = _serialPort.Read(response, bytesRead, toRead);
+                            bytesRead += n;
+                            //Trace.WriteLine($"接收中: {BitConverter.ToString(response.Take(bytesRead).ToArray())}");
+                        }
+                        else
+                        {
+                            Thread.Sleep(10);
+                        }
                     }
-                    else
+
+                    //Trace.WriteLine("接收完成: " + BitConverter.ToString(response.Take(bytesRead).ToArray()));
+
+                    // 检查异常响应
+                    if ((response[1] & 0x80) != 0) // 异常响应
                     {
-                        Thread.Sleep(10);
+                        byte errorCode = response[2];
+                        throw new InvalidOperationException($"Modbus异常响应，错误码：0x{errorCode:X2}");
                     }
+
+                    // 校验从机地址
+                    if (response[0] != request[0])
+                        throw new InvalidOperationException($"响应从机地址不匹配，期望：{request[0]}，实际：{response[0]}");
+
+                    // 校验功能码
+                    if (response[1] != request[1])
+                        throw new InvalidOperationException($"响应功能码不匹配，期望：{request[1]}，实际：{response[1]}");
+
+                    // 校验 CRC
+                    ushort crc = CalculateCRC(response, 0, bytesRead - 2);
+                    if (response[bytesRead - 2] != (byte)(crc & 0xFF) || response[bytesRead - 1] != (byte)(crc >> 8))
+                        throw new Exception("CRC校验失败");
+
+                    return response;
                 }
-
-                //Trace.WriteLine("接收完成: " + BitConverter.ToString(response.Take(bytesRead).ToArray()));
-
-                // 检查异常响应
-                if ((response[1] & 0x80) != 0) // 异常响应
+                catch (TimeoutException ex)
                 {
-                    byte errorCode = response[2];
-                    throw new InvalidOperationException($"Modbus异常响应，错误码：0x{errorCode:X2}");
+                    //Trace.WriteLine("异常: " + ex.Message);
+                    throw new TimeoutException($"异常：{ex.Message}");
                 }
-
-                // 校验从机地址
-                if (response[0] != request[0])
-                    throw new InvalidOperationException($"响应从机地址不匹配，期望：{request[0]}，实际：{response[0]}");
-
-                // 校验功能码
-                if (response[1] != request[1])
-                    throw new InvalidOperationException($"响应功能码不匹配，期望：{request[1]}，实际：{response[1]}");
-
-                // 校验 CRC
-                ushort crc = CalculateCRC(response, 0, bytesRead - 2);
-                if (response[bytesRead - 2] != (byte)(crc & 0xFF) || response[bytesRead - 1] != (byte)(crc >> 8))
-                    throw new Exception("CRC校验失败");
-
-                return response;
-            }
-            catch (TimeoutException ex)
-            {
-                //Trace.WriteLine("异常: " + ex.Message);
-                throw new TimeoutException($"异常：{ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                //Trace.WriteLine("异常: " + ex.Message);
-                throw new InvalidOperationException($"发送Modbus请求失败：{ex.Message}", ex);
+                catch (Exception ex)
+                {
+                    //Trace.WriteLine("异常: " + ex.Message);
+                    throw new InvalidOperationException($"发送Modbus请求失败：{ex.Message}", ex);
+                }
             }
         }
 
