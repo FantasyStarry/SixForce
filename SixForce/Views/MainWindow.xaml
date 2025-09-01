@@ -69,7 +69,7 @@
             </Border>
 
             <!-- 中 -->
-            <Border Grid.Column="1" 
+            <Border x:Name="CenterArea" Grid.Column="1" 
                     Background="White" 
                     Margin="5"
                     CornerRadius="12"
@@ -77,10 +77,6 @@
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.2"/>
                 </Border.Effect>
-                <TextBlock Text="中 (6)" 
-                           VerticalAlignment="Center" 
-                           HorizontalAlignment="Center" 
-                           Foreground="#444"/>
             </Border>
 
             <!-- 右 -->

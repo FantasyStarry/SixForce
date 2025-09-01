@@ -21,6 +21,7 @@ namespace SixForce
             services.AddSingleton<IMessageService, MessageService>();
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<LeftPanelViewModel>();
+            services.AddSingleton <CenterPanelViewModel>();
             services.AddSingleton<RightPanelViewModel>();
             services.AddSingleton<DecouplingMatrixViewModel>();
             ServiceProvider = services.BuildServiceProvider();
