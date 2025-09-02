@@ -226,13 +226,8 @@ namespace SixForce.ViewModels
                 wsMv.Cell(channels.Count + 1, newColMv).Value = _demarcateCount;
                 wsForce.Cell(channels.Count + 1, newColForce).Value = _demarcateCount;
 
-                // 样式优化：加粗表头，居中
-                wsMv.Range(1, 1, 1, newColMv).Style.Font.Bold = true;
-                wsMv.Range(1, 1, 1, newColMv).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 wsMv.Columns().AdjustToContents();
 
-                wsForce.Range(1, 1, 1, newColForce).Style.Font.Bold = true;
-                wsForce.Range(1, 1, 1, newColForce).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                 wsForce.Columns().AdjustToContents();
 
                 workbook.SaveAs(excelPath);
