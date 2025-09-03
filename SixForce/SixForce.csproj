@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<OutputType>WinExe</OutputType>
 		<TargetFramework>net8.0-windows</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -9,12 +8,22 @@
 		<ApplicationIcon>Assets\Images\favicon.ico</ApplicationIcon>
 	</PropertyGroup>
 
+	<!-- Debug 模式下启用控制台窗口 -->
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputType>Exe</OutputType>
+	</PropertyGroup>
+
+	<!-- Release 模式下正常 WPF 应用 -->
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputType>WinExe</OutputType>
+	</PropertyGroup>
+
 	<ItemGroup>
-	  <None Remove="Assets\Images\favicon.ico" />
+		<None Remove="Assets\Images\favicon.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Resource Include="Assets\Images\favicon.ico" />
+		<Resource Include="Assets\Images\favicon.ico" />
 	</ItemGroup>
 
 	<ItemGroup>

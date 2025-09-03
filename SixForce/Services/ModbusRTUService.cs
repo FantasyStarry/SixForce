@@ -1,4 +1,5 @@
 ﻿using SixForce.Models;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Windows;
 
@@ -72,16 +73,19 @@ namespace SixForce.Services
                                 throw new InvalidOperationException("StartReading  Modbus寄存器映射未设置");
                             }
 
-                            // 读取力值（整型格式，12个寄存器）
-                            byte[] forceRequest = BuildModbusReadRequest(SlaveId, _map.ForceStartAddress, _map.ForceRegisterCount);
-                            byte[] forceResponse = SendModbusRequest(forceRequest);
-                            var forceValues = ParseForceValues(forceResponse);
-
                             // 读取mV值（整型格式，12个寄存器）
                             byte[] mvRequest = BuildModbusReadRequest(SlaveId, _map.MvStartAddress, _map.MvRegisterCount);
                             byte[] mvResponse = SendModbusRequest(mvRequest);
                             var mvValues = ParseMvValues(mvResponse);
 
+                            // 在两次请求之间增加一个短暂的延时，给设备处理时间
+                            // 可以从 20ms 开始尝试，根据实际情况调整
+                            await Task.Delay(20, _cts.Token);
+
+                            // 读取力值（整型格式，12个寄存器）
+                            byte[] forceRequest = BuildModbusReadRequest(SlaveId, _map.ForceStartAddress, _map.ForceRegisterCount);
+                            byte[] forceResponse = SendModbusRequest(forceRequest);
+                            var forceValues = ParseForceValues(forceResponse);
 
                             // 组合数据
                             var data = new Dictionary<string, (string mvValue, string forceValue)>
@@ -375,7 +379,8 @@ namespace SixForce.Services
             {
                 try
                 {
-                    //Trace.WriteLine("发送: " + BitConverter.ToString(request));
+                    Trace.WriteLine("发送: " + BitConverter.ToString(request));
+                    Console.WriteLine("发送: " + BitConverter.ToString(request));
                     _serialPort.DiscardInBuffer();
                     _serialPort.Write(request, 0, request.Length);
 
@@ -396,7 +401,8 @@ namespace SixForce.Services
                             int toRead = Math.Min(available, expectedLength - bytesRead);
                             int n = _serialPort.Read(response, bytesRead, toRead);
                             bytesRead += n;
-                            //Trace.WriteLine($"接收中: {BitConverter.ToString(response.Take(bytesRead).ToArray())}");
+                            Trace.WriteLine($"接收中: {BitConverter.ToString(response.Take(bytesRead).ToArray())}");
+                            Console.WriteLine($"接收中: {BitConverter.ToString(response.Take(bytesRead).ToArray())}");
                         }
                         else
                         {
@@ -404,7 +410,8 @@ namespace SixForce.Services
                         }
                     }
 
-                    //Trace.WriteLine("接收完成: " + BitConverter.ToString(response.Take(bytesRead).ToArray()));
+                    Trace.WriteLine("接收完成: " + BitConverter.ToString(response.Take(bytesRead).ToArray()));
+                    Console.WriteLine("接收完成: " + BitConverter.ToString(response.Take(bytesRead).ToArray()));
 
                     // 检查异常响应
                     if ((response[1] & 0x80) != 0) // 异常响应
@@ -430,12 +437,14 @@ namespace SixForce.Services
                 }
                 catch (TimeoutException ex)
                 {
-                    //Trace.WriteLine("异常: " + ex.Message);
+                    Trace.WriteLine("异常: " + ex.Message);
+                    Console.WriteLine("异常: " + ex.Message);
                     throw new TimeoutException($"异常：{ex.Message}");
                 }
                 catch (Exception ex)
                 {
-                    //Trace.WriteLine("异常: " + ex.Message);
+                    Trace.WriteLine("异常: " + ex.Message);
+                    Console.WriteLine("异常: " + ex.Message);
                     throw new InvalidOperationException($"发送Modbus请求失败：{ex.Message}", ex);
                 }
             }
