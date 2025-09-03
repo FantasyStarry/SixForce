@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Windows;
+using System.Windows.Documents;
 
 namespace SixForce.Services
 {
@@ -13,6 +14,8 @@ namespace SixForce.Services
         private readonly object _serialLock = new();
 
         private ModbusRegisterMap? _map;
+
+        private volatile bool _isReadingPaused = false;
 
         public void SetRegisterMap(String key, ModbusRegisterMap map)
         {
@@ -66,6 +69,14 @@ namespace SixForce.Services
                 {
                     while (!_cts.IsCancellationRequested)
                     {
+
+                        // 在每次循环开始时检查是否需要暂停
+                        if (_isReadingPaused)
+                        {
+                            await Task.Delay(100, _cts.Token); // 暂停时也做个短暂等待，避免空转
+                            continue;
+                        }
+
                         try
                         {
                             if (_map == null)
@@ -119,6 +130,17 @@ namespace SixForce.Services
             }
         }
 
+        // 新增公开方法用于控制暂停和恢复
+        public void PauseReading()
+        {
+            _isReadingPaused = true;
+        }
+
+        public void ResumeReading()
+        {
+            _isReadingPaused = false;
+        }
+
         public void StopReading()
         {
             _cts?.Cancel();
@@ -131,41 +153,54 @@ namespace SixForce.Services
             _serialPort.Dispose();
         }
 
-        public void ClearChannel(int channel)
+        public async Task ClearChannelAsync(int channel)
         {
-            if (_map == null)
-                throw new InvalidOperationException("Modbus寄存器映射未设置");
-            if (!_serialPort.IsOpen)
-                throw new InvalidOperationException("串口未连接");
-            // 多功能码地址：1574 (0x0626)，寄存器数量：2
-            ushort address = _map.ClearFunctionAddress;
-            ushort count = 2;
-            byte functionCode;
-            if (channel >= 1 && channel <= 6)
-                functionCode = (byte)(_map.ClearChannelStartCode + (channel - 1)); // 通道1=0x15, 通道6=0x1A
-            else if (channel == 7)
-                functionCode = _map.ClearAllChannelsCode; // 所有通道
-            else
-                throw new ArgumentException("通道号必须是1-7");
+            // 暂停后台读取
+            PauseReading();
+            // 等待一小段时间，确保当前正在进行的读取操作完成
+            await Task.Delay(150);
+            try
+            {
 
-            byte[] request = new byte[13];
-            request[0] = SlaveId;
-            request[1] = 0x10; // 写多个寄存器
-            request[2] = (byte)(address >> 8);
-            request[3] = (byte)(address & 0xFF);
-            request[4] = (byte)(count >> 8);
-            request[5] = (byte)(count & 0xFF);
-            request[6] = 0x04; // 字节数（写2个寄存器=4字节）
-            request[7] = 0x00;
-            request[8] = 0x00;
-            request[9] = 0x00;
-            request[10] = functionCode; // 功能码
+                if (_map == null)
+                    throw new InvalidOperationException("Modbus寄存器映射未设置");
+                if (!_serialPort.IsOpen)
+                    throw new InvalidOperationException("串口未连接");
+                // 多功能码地址：1574 (0x0626)，寄存器数量：2
+                ushort address = _map.ClearFunctionAddress;
+                ushort count = 2;
+                byte functionCode;
+                if (channel >= 1 && channel <= 6)
+                    functionCode = (byte)(_map.ClearChannelStartCode + (channel - 1)); // 通道1=0x15, 通道6=0x1A
+                else if (channel == 7)
+                    functionCode = _map.ClearAllChannelsCode; // 所有通道
+                else
+                    throw new ArgumentException("通道号必须是1-7");
 
-            var crc = CalculateCRC(request, 0, 11);
-            request[11] = (byte)(crc & 0xFF);
-            request[12] = (byte)(crc >> 8);
+                byte[] request = new byte[13];
+                request[0] = SlaveId;
+                request[1] = 0x10; // 写多个寄存器
+                request[2] = (byte)(address >> 8);
+                request[3] = (byte)(address & 0xFF);
+                request[4] = (byte)(count >> 8);
+                request[5] = (byte)(count & 0xFF);
+                request[6] = 0x04; // 字节数（写2个寄存器=4字节）
+                request[7] = 0x00;
+                request[8] = 0x00;
+                request[9] = 0x00;
+                request[10] = functionCode; // 功能码
 
-            SendModbusRequest(request);
+                var crc = CalculateCRC(request, 0, 11);
+                request[11] = (byte)(crc & 0xFF);
+                request[12] = (byte)(crc >> 8);
+
+                SendModbusRequest(request);
+            }
+            finally
+            {
+                // 无论成功还是失败，都要恢复后台读取
+                ResumeReading();
+            }
         }
 
         public async Task<int[,]> ReadDecouplingMatrixAsync()

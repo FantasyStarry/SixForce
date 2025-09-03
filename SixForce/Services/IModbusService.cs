@@ -13,7 +13,7 @@ namespace SixForce.Services
             Action<Exception> errorCallback,
             int interval = 50);
         void StopReading();
-        void ClearChannel(int channel);
+        Task ClearChannelAsync(int channel);
         void SetRegisterMap(String key, ModbusRegisterMap map);
         Task<int[,]> ReadDecouplingMatrixAsync();
         Task WriteDecouplingMatrixAsync(int[,] matrix);

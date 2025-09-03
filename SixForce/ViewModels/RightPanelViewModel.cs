@@ -77,11 +77,11 @@ namespace SixForce.ViewModels
         }
 
         [RelayCommand]
-        private void ConfirmClearChannel()
+        private async Task ConfirmClearChannel()
         {
             try
             {
-                _modbusService.ClearChannel(SelectedChannel);
+                await _modbusService.ClearChannelAsync(SelectedChannel);
 
                 MessageBox.Show(
                     SelectedChannel == 7 ? "已清零所有通道" : $"已清零通道 {SelectedChannel}",
