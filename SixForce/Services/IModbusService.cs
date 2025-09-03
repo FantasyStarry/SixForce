@@ -11,7 +11,7 @@ namespace SixForce.Services
         void StartReading(
             Action<Dictionary<string, (string mvValue, string forceValue)>> dataReceivedCallback, 
             Action<Exception> errorCallback,
-            int interval = 500);
+            int interval = 50);
         void StopReading();
         void ClearChannel(int channel);
         void SetRegisterMap(String key, ModbusRegisterMap map);

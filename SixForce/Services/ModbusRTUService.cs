@@ -53,7 +53,7 @@ namespace SixForce.Services
         public void StartReading(
             Action<Dictionary<string, (string mvValue, string forceValue)>> dataReceivedCallback,
             Action<Exception> errorCallback,
-            int interval = 200)
+            int interval = 50)
         {
             {
                 if (!_serialPort.IsOpen) throw new InvalidOperationException("Serial port not connected");
@@ -100,7 +100,7 @@ namespace SixForce.Services
                         {
                             if (!_cts.IsCancellationRequested)
                             {
-                                await Task.Delay(2000, _cts.Token); // 等待 2 秒后重试
+                                await Task.Delay(1000, _cts.Token); // 等待 2 秒后重试
                                 continue;
                             }
                             errorCallback?.Invoke(ex); // 通知异常
