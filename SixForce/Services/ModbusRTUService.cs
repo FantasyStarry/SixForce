@@ -22,7 +22,6 @@ namespace SixForce.Services
             if (key == "503B")
             {
                 MessageBox.Show("当前该变送器无法进行解耦录入功能");
-                return;
             }
             _map = map;
         }
