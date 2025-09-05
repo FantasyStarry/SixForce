@@ -7,6 +7,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TextBlock Text="123" />
+        <Canvas x:Name="CurveCanvas" Background="White" Width="500" Height="300"/>
     </Grid>
 </UserControl>
