@@ -16,14 +16,16 @@ namespace SixForce
         public App()
         {
             var services = new ServiceCollection();
-            // 注册服务和ViewModel
+            
             services.AddSingleton<IModbusService, ModbusRTUService>();
             services.AddSingleton<IMessageService, MessageService>();
+            
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<LeftPanelViewModel>();
-            services.AddSingleton <CenterPanelViewModel>();
+            services.AddSingleton<CenterPanelViewModel>();
             services.AddSingleton<RightPanelViewModel>();
             services.AddSingleton<DecouplingMatrixViewModel>();
+            
             ServiceProvider = services.BuildServiceProvider();
         }
 
