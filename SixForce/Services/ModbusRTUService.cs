@@ -1,4 +1,5 @@
-﻿using SixForce.Models;
+﻿using SixForce.Constants;
+using SixForce.Models;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Windows;
@@ -19,10 +20,6 @@ namespace SixForce.Services
 
         public void SetRegisterMap(String key, ModbusRegisterMap map)
         {
-            if (key == "503B")
-            {
-                MessageBox.Show("当前该变送器无法进行解耦录入功能");
-            }
             _map = map;
         }
 
@@ -46,10 +43,46 @@ namespace SixForce.Services
 
         public void Disconnect()
         {
-            StopReading();
-            if (_serialPort.IsOpen)
+            try
             {
-                _serialPort.Close();
+                StopReading();
+                
+                // 使用超时机制避免阻塞
+                if (_serialPort.IsOpen)
+                {
+                    // 尝试获取锁，但设置超时避免死锁
+                    if (Monitor.TryEnter(_serialLock, TimeSpan.FromMilliseconds(1000)))
+                    {
+                        try
+                        {
+                            if (_serialPort.IsOpen)
+                            {
+                                _serialPort.Close();
+                            }
+                        }
+                        finally
+                        {
+                            Monitor.Exit(_serialLock);
+                        }
+                    }
+                    else
+                    {
+                        // 如果无法获取锁，强制关闭串口
+                        try
+                        {
+                            _serialPort.Close();
+                        }
+                        catch
+                        {
+                            // 忽略关闭时的异常
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"断开连接时发生异常: {ex.Message}");
+                // 不重新抛出异常，确保断开操作能够完成
             }
         }
 
@@ -58,21 +91,22 @@ namespace SixForce.Services
             Action<Exception> errorCallback,
             int interval = 50)
         {
-            {
-                if (!_serialPort.IsOpen) throw new InvalidOperationException("Serial port not connected");
+            StopReading();
+            if (!_serialPort.IsOpen) throw new InvalidOperationException("Serial port not connected");
 
                 _callback = dataReceivedCallback;
                 _cts = new CancellationTokenSource();
+                var cts = _cts;
 
                 Task.Run(async () =>
                 {
-                    while (!_cts.IsCancellationRequested)
+                    while (!cts.IsCancellationRequested)
                     {
 
                         // 在每次循环开始时检查是否需要暂停
                         if (_isReadingPaused)
                         {
-                            await Task.Delay(100, _cts.Token); // 暂停时也做个短暂等待，避免空转
+                            await Task.Delay(100, cts.Token); // 暂停时也做个短暂等待，避免空转
                             continue;
                         }
 
@@ -89,8 +123,7 @@ namespace SixForce.Services
                             var mvValues = ParseMvValues(mvResponse);
 
                             // 在两次请求之间增加一个短暂的延时，给设备处理时间
-                            // 可以从 20ms 开始尝试，根据实际情况调整
-                            await Task.Delay(20, _cts.Token);
+                            await Task.Delay(AppConstants.Modbus.DefaultReadDelayMs, cts.Token);
 
                             // 读取力值（整型格式，12个寄存器）
                             byte[] forceRequest = BuildModbusReadRequest(SlaveId, _map.ForceStartAddress, _map.ForceRegisterCount);
@@ -112,21 +145,21 @@ namespace SixForce.Services
                         }
                         catch (Exception ex)
                         {
-                            if (!_cts.IsCancellationRequested)
+                            if (!cts.IsCancellationRequested)
                             {
-                                await Task.Delay(1000, _cts.Token); // 等待 2 秒后重试
+                                await Task.Delay(AppConstants.DataAcquisition.ErrorRetryWaitTimeMs, cts.Token); // 错误后重试等待
                                 continue;
                             }
                             errorCallback?.Invoke(ex); // 通知异常
                             Console.WriteLine($"Modbus读取错误: {ex.Message}");
-                            Disconnect(); // 断开连接
+                            // 不要在这里直接调用Disconnect，避免递归调用和死锁
+                            // 让上层处理连接断开
                             break;
                         }
 
-                        await Task.Delay(interval, _cts.Token);
+                        await Task.Delay(interval, cts.Token);
                     }
-                }, _cts.Token);
-            }
+                }, cts.Token);
         }
 
         // 新增公开方法用于控制暂停和恢复
@@ -143,7 +176,6 @@ namespace SixForce.Services
         public void StopReading()
         {
             _cts?.Cancel();
-            _cts = null;
         }
 
         public void Dispose()
@@ -157,7 +189,7 @@ namespace SixForce.Services
             // 暂停后台读取
             PauseReading();
             // 等待一小段时间，确保当前正在进行的读取操作完成
-            await Task.Delay(150);
+            await Task.Delay(AppConstants.Modbus.ClearChannelWaitTimeMs);
             try
             {
 
@@ -243,12 +275,11 @@ namespace SixForce.Services
                         {
                             if (retry == 2)
                                 throw new Exception($"读取 [{row},{col}] 失败: {ex.Message}");
-                            await Task.Delay(20);
+                            await Task.Delay(AppConstants.Modbus.DecouplingRetryDelayMs);
                         }
-                    }
-
-                    await Task.Delay(10);
-                }
+                                            }
+                    
+                                            await Task.Delay(AppConstants.Modbus.DecouplingWriteIntervalMs);                }
             }
 
             return matrix;
@@ -290,11 +321,11 @@ namespace SixForce.Services
                         {
                             if (retry == 2)
                                 throw new Exception($"写入 [{row},{col}] 失败: {ex.Message}");
-                            await Task.Delay(20); // 重试前等一会
+                            await Task.Delay(AppConstants.Modbus.DecouplingRetryDelayMs); // 重试前等一会
                         }
                     }
 
-                    await Task.Delay(10); // 给设备缓冲时间
+                    await Task.Delay(AppConstants.Modbus.DecouplingWriteIntervalMs); // 给设备缓冲时间
                 }
             }
             await SaveParametersAsync();
@@ -409,78 +440,91 @@ namespace SixForce.Services
             if (!_serialPort.IsOpen)
                 throw new InvalidOperationException("串口未打开，无法发送请求");
 
-            lock(_serialLock)
+            // 使用TryEnter避免无限等待
+            if (!Monitor.TryEnter(_serialLock, TimeSpan.FromMilliseconds(5000)))
+                throw new TimeoutException("获取串口锁超时，可能存在死锁");
+
+            try
             {
-                try
+                Trace.WriteLine("发送: " + BitConverter.ToString(request));
+                Console.WriteLine("发送: " + BitConverter.ToString(request));
+                _serialPort.DiscardInBuffer();
+                _serialPort.Write(request, 0, request.Length);
+
+                int expectedLength = GetExpectedResponseLength(request);
+                byte[] response = new byte[expectedLength > 5 ? expectedLength : 5]; // 最小支持 5 字节异常响应
+                int bytesRead = 0;
+                DateTime startTime = DateTime.Now;
+                TimeSpan timeout = TimeSpan.FromMilliseconds(AppConstants.Modbus.DefaultTimeoutMs); // 使用配置的超时时间
+
+                while (bytesRead < expectedLength)
                 {
-                    Trace.WriteLine("发送: " + BitConverter.ToString(request));
-                    Console.WriteLine("发送: " + BitConverter.ToString(request));
-                    _serialPort.DiscardInBuffer();
-                    _serialPort.Write(request, 0, request.Length);
+                    // 检查串口是否仍然打开
+                    if (!_serialPort.IsOpen)
+                        throw new InvalidOperationException("串口在读取过程中被关闭");
 
-                    int expectedLength = GetExpectedResponseLength(request);
-                    byte[] response = new byte[expectedLength > 5 ? expectedLength : 5]; // 最小支持 5 字节异常响应
-                    int bytesRead = 0;
-                    DateTime startTime = DateTime.Now;
-                    TimeSpan timeout = TimeSpan.FromSeconds(10); // 增加超时时间
+                    if (DateTime.Now - startTime > timeout)
+                        throw new TimeoutException($"读取Modbus响应超时，预期长度：{expectedLength}，已接收：{bytesRead}");
+                    
+                    if (_cts?.IsCancellationRequested == true)
+                        throw new OperationCanceledException();
 
-                    while (bytesRead < expectedLength)
+                    int available = _serialPort.BytesToRead;
+                    if (available > 0)
                     {
-                        if (DateTime.Now - startTime > timeout)
-                            throw new TimeoutException($"读取Modbus响应，预期长度：{expectedLength}，已接收：{bytesRead}");
-
-                        int available = _serialPort.BytesToRead;
-                        if (available > 0)
-                        {
-                            int toRead = Math.Min(available, expectedLength - bytesRead);
-                            int n = _serialPort.Read(response, bytesRead, toRead);
-                            bytesRead += n;
-                            Trace.WriteLine($"接收中: {BitConverter.ToString(response.Take(bytesRead).ToArray())}");
-                            Console.WriteLine($"接收中: {BitConverter.ToString(response.Take(bytesRead).ToArray())}");
-                        }
-                        else
-                        {
-                            Thread.Sleep(10);
-                        }
+                        int toRead = Math.Min(available, expectedLength - bytesRead);
+                        int n = _serialPort.Read(response, bytesRead, toRead);
+                        bytesRead += n;
+                        Trace.WriteLine($"接收中: {BitConverter.ToString(response.Take(bytesRead).ToArray())}");
+                        Console.WriteLine($"接收中: {BitConverter.ToString(response.Take(bytesRead).ToArray())}");
                     }
-
-                    Trace.WriteLine("接收完成: " + BitConverter.ToString(response.Take(bytesRead).ToArray()));
-                    Console.WriteLine("接收完成: " + BitConverter.ToString(response.Take(bytesRead).ToArray()));
-
-                    // 检查异常响应
-                    if ((response[1] & 0x80) != 0) // 异常响应
+                    else
                     {
-                        byte errorCode = response[2];
-                        throw new InvalidOperationException($"Modbus异常响应，错误码：0x{errorCode:X2}");
+                        // 使用更短的等待时间，提高响应性
+                        Thread.Sleep(5);
                     }
-
-                    // 校验从机地址
-                    if (response[0] != request[0])
-                        throw new InvalidOperationException($"响应从机地址不匹配，期望：{request[0]}，实际：{response[0]}");
-
-                    // 校验功能码
-                    if (response[1] != request[1])
-                        throw new InvalidOperationException($"响应功能码不匹配，期望：{request[1]}，实际：{response[1]}");
-
-                    // 校验 CRC
-                    ushort crc = CalculateCRC(response, 0, bytesRead - 2);
-                    if (response[bytesRead - 2] != (byte)(crc & 0xFF) || response[bytesRead - 1] != (byte)(crc >> 8))
-                        throw new Exception("CRC校验失败");
-
-                    return response;
                 }
-                catch (TimeoutException ex)
+
+                Trace.WriteLine("接收完成: " + BitConverter.ToString(response.Take(bytesRead).ToArray()));
+                Console.WriteLine("接收完成: " + BitConverter.ToString(response.Take(bytesRead).ToArray()));
+
+                // 检查异常响应
+                if ((response[1] & 0x80) != 0) // 异常响应
                 {
-                    Trace.WriteLine("异常: " + ex.Message);
-                    Console.WriteLine("异常: " + ex.Message);
-                    throw new TimeoutException($"异常：{ex.Message}");
+                    byte errorCode = response[2];
+                    throw new InvalidOperationException($"Modbus异常响应，错误码：0x{errorCode:X2}");
                 }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine("异常: " + ex.Message);
-                    Console.WriteLine("异常: " + ex.Message);
-                    throw new InvalidOperationException($"发送Modbus请求失败：{ex.Message}", ex);
-                }
+
+                // 校验从机地址
+                if (response[0] != request[0])
+                    throw new InvalidOperationException($"响应从机地址不匹配，期望：{request[0]}，实际：{response[0]}");
+
+                // 校验功能码
+                if (response[1] != request[1])
+                    throw new InvalidOperationException($"响应功能码不匹配，期望：{request[1]}，实际：{response[1]}");
+
+                // 校验 CRC
+                ushort crc = CalculateCRC(response, 0, bytesRead - 2);
+                if (response[bytesRead - 2] != (byte)(crc & 0xFF) || response[bytesRead - 1] != (byte)(crc >> 8))
+                    throw new Exception("CRC校验失败");
+
+                return response;
+            }
+            catch (TimeoutException ex)
+            {
+                Trace.WriteLine("超时异常: " + ex.Message);
+                Console.WriteLine("超时异常: " + ex.Message);
+                throw; // 重新抛出TimeoutException，不要包装
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("异常: " + ex.Message);
+                Console.WriteLine("异常: " + ex.Message);
+                throw new InvalidOperationException($"发送Modbus请求失败：{ex.Message}", ex);
+            }
+            finally
+            {
+                Monitor.Exit(_serialLock);
             }
         }
 

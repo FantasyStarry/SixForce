@@ -21,11 +21,13 @@ namespace SixForce.ViewModels
     public partial class DecouplingMatrixViewModel : ObservableObject
     {
         private readonly IModbusService _modbusService;
+        private readonly IMessageService _messageService;
         public ObservableCollection<MatrixRow> MatrixRows { get; } = new ObservableCollection<MatrixRow>();
 
-        public DecouplingMatrixViewModel(IModbusService modbusService)
+        public DecouplingMatrixViewModel(IModbusService modbusService, IMessageService messageService)
         {
             _modbusService = modbusService;
+            _messageService = messageService;
             for (int i = 0; i < 6; i++)
             {
                 MatrixRows.Add(new MatrixRow { RowIndex = i + 1 });
@@ -45,11 +47,11 @@ namespace SixForce.ViewModels
                         MatrixRows[row].Values[col] = matrix[row, col];
                     }
                 }
-                MessageBox.Show("读取成功");
+                _messageService.ShowMessage("读取成功");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"读取失败: {ex.Message}");
+                _messageService.ShowMessage($"读取失败: {ex.Message}");
             }
         }
 
@@ -67,11 +69,11 @@ namespace SixForce.ViewModels
                     }
                 }
                 await _modbusService.WriteDecouplingMatrixAsync(matrix);
-                MessageBox.Show("写入成功");
+                _messageService.ShowMessage("写入成功");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"写入失败: {ex.Message}");
+                _messageService.ShowMessage($"写入失败: {ex.Message}");
             }
         }
 
@@ -87,7 +89,7 @@ namespace SixForce.ViewModels
                     writer.WriteLine(string.Join(",", MatrixRows[row].Values));
                 }
             }
-            MessageBox.Show("文件已创建至桌面：解耦系数.csv");
+            _messageService.ShowMessage("文件已创建至桌面：解耦系数.csv");
         }
 
         [RelayCommand]
@@ -97,14 +99,14 @@ namespace SixForce.ViewModels
             string filePath = Path.Combine(desktopPath, "解耦系数.csv");
             if (!File.Exists(filePath))
             {
-                MessageBox.Show("桌面未找到解耦系数.csv 文件");
+                _messageService.ShowMessage("桌面未找到解耦系数.csv 文件");
                 return;
             }
 
             var lines = File.ReadAllLines(filePath);
             if (lines.Length < 6)
             {
-                MessageBox.Show("文件格式无效");
+                _messageService.ShowMessage("文件格式无效");
                 return;
             }
 
@@ -113,7 +115,7 @@ namespace SixForce.ViewModels
                 var values = lines[row].Split(',').Select(int.Parse).ToArray();
                 if (values.Length != 6)
                 {
-                    MessageBox.Show("文件格式无效");
+                    _messageService.ShowMessage("文件格式无效");
                     return;
                 }
                 for (int col = 0; col < 6; col++)
@@ -121,7 +123,7 @@ namespace SixForce.ViewModels
                     MatrixRows[row].Values[col] = values[col];
                 }
             }
-            MessageBox.Show("文件已从桌面读取：解耦系数.csv");
+            _messageService.ShowMessage("文件已从桌面读取：解耦系数.csv");
         }
     }
 }

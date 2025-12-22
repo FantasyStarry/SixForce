@@ -25,8 +25,8 @@ namespace SixForce.Views
             var rightPanelViewModel = serviceProvider.GetService<RightPanelViewModel>()
                 ?? throw new InvalidOperationException("无法解析 RightPanelViewModel");
 
-            // 订阅 LeftPanel 属性变化
-            rightPanelViewModel.SubscribeToLeftPanel(leftPanelViewModel);
+            // 订阅读取控制器
+            rightPanelViewModel.SubscribeToReadingController(leftPanelViewModel);
 
             // 设置 LeftPanel 和 RightPanel 还有 CenterPanel
             var leftPanelContainer = LeftArea;

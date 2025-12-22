@@ -9,26 +9,41 @@ using System.Windows;
 namespace SixForce.ViewModels
 {
     /// <summary>
+    /// 读取控制器接口，用于控制数据读取的启动和停止
+    /// </summary>
+    public interface IReadingController
+    {
+        void StartReadingData();
+        void StopReading();
+        bool IsConnected { get; }
+        string ProductId { get; }
+        string? SelectedChannel { get; }
+        event Action<Dictionary<string, (string mvValue, string forceValue)>>? SensorDataUpdated;
+    }
+
+    /// <summary>
     /// 左侧面板视图模型，负责串口连接和设备通信控制
     /// </summary>
-    public partial class LeftPanelViewModel : ObservableObject, IDisposable
+    public partial class LeftPanelViewModel : ObservableObject, IDisposable, IReadingController
     {
         private readonly IModbusService _modbusService;
         private readonly IMessageService _messageService;
-        private readonly RightPanelViewModel _rightPanelViewModel;
         private bool _disposed;
+        
+        /// <summary>
+        /// 传感器数据更新事件
+        /// </summary>
+        public event Action<Dictionary<string, (string mvValue, string forceValue)>>? SensorDataUpdated;
 
         /// <summary>
         /// 构造函数
         /// </summary>
         public LeftPanelViewModel(
             IModbusService modbusService,
-            IMessageService messageService,
-            RightPanelViewModel rightPanelViewModel)
+            IMessageService messageService)
         {
             _modbusService = modbusService ?? throw new ArgumentNullException(nameof(modbusService));
             _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
-            _rightPanelViewModel = rightPanelViewModel ?? throw new ArgumentNullException(nameof(rightPanelViewModel));
 
             RefreshPorts();
             SelectedSerialPort = SerialPorts.FirstOrDefault();
@@ -244,7 +259,19 @@ namespace SixForce.ViewModels
             try
             {
                 StopReading();
-                _modbusService.Disconnect();
+                
+                // 使用异步方式断开连接，避免阻塞UI
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        _modbusService.Disconnect();
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine($"Modbus断开异常: {ex.Message}");
+                    }
+                });
                 
                 IsConnected = false;
                 _messageService.ShowMessage("串口已断开", "提示");
@@ -252,6 +279,7 @@ namespace SixForce.ViewModels
             catch (Exception ex)
             {
                 _messageService.ShowMessage($"断开失败: {ex.Message}", "错误");
+                IsConnected = false; // 确保状态更新
             }
         }
 
@@ -260,14 +288,12 @@ namespace SixForce.ViewModels
         /// </summary>
         private void UpdateSensorData(Dictionary<string, (string mvValue, string forceValue)> data)
         {
-            Application.Current?.Dispatcher.Invoke(() =>
+            // 使用BeginInvoke避免阻塞后台线程
+            Application.Current?.Dispatcher.BeginInvoke(() =>
             {
                 try
                 {
-                    foreach (var item in data)
-                    {
-                        _rightPanelViewModel.UpdateData(item.Key, item.Value.mvValue, item.Value.forceValue);
-                    }
+                    SensorDataUpdated?.Invoke(data);
                 }
                 catch (Exception ex)
                 {
@@ -281,22 +307,32 @@ namespace SixForce.ViewModels
         /// </summary>
         private void HandleError(Exception ex)
         {
-            Application.Current?.Dispatcher.Invoke(() =>
+            // 使用BeginInvoke避免阻塞，防止死锁
+            Application.Current?.Dispatcher.BeginInvoke(() =>
             {
-                IsConnected = false;
-                IsReadingData = false;
-                ConnectCommand.NotifyCanExecuteChanged();
-                DisconnectCommand.NotifyCanExecuteChanged();
-
-                string message = ex.Message switch
+                try
                 {
-                    var s when s.Contains("超时") => "传感器未响应，请检查连接或波特率设置",
-                    var s when s.Contains("CRC校验失败") => "数据校验错误，请检查传感器状态",
-                    var s when s.Contains("从机地址不匹配") => "从机地址错误，请确认设备地址",
-                    _ => $"通信错误: {ex.Message}"
-                };
+                    IsConnected = false;
+                    IsReadingData = false;
+                    ConnectCommand.NotifyCanExecuteChanged();
+                    DisconnectCommand.NotifyCanExecuteChanged();
 
-                _messageService.ShowMessage(message, "错误");
+                    string message = ex.Message switch
+                    {
+                        var s when s.Contains("超时") => "传感器未响应，请检查连接或波特率设置",
+                        var s when s.Contains("CRC校验失败") => "数据校验错误，请检查传感器状态",
+                        var s when s.Contains("从机地址不匹配") => "从机地址错误，请确认设备地址",
+                        var s when s.Contains("获取串口锁超时") => "串口通信冲突，请稍后重试",
+                        _ => $"通信错误: {ex.Message}"
+                    };
+
+                    _messageService.ShowMessage(message, "错误");
+                }
+                catch (Exception uiEx)
+                {
+                    Trace.WriteLine($"UI错误处理异常: {uiEx.Message}");
+                    // 避免在错误处理中再次抛出异常
+                }
             });
         }
 

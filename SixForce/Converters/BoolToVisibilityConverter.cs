@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Data;
 
-namespace SixForce.Resource
+namespace SixForce.Converters
 {
     public class BoolToVisibilityConverter : IValueConverter
     {

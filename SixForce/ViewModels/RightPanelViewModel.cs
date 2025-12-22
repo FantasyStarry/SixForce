@@ -16,21 +16,21 @@ namespace SixForce.ViewModels
     public partial class RightPanelViewModel : ObservableObject
     {
         private readonly IModbusService _modbusService;
-        private LeftPanelViewModel? _leftPanelViewModel;
+        private readonly IMessageService _messageService;
+        private IReadingController? _readingController;
         private readonly IServiceProvider _serviceProvider;
         private int _demarcateCount = 0;
 
-        public RightPanelViewModel(IModbusService modbusService, IServiceProvider serviceProvider)
-        {
-            // 初始化时可以添加一些默认数据或其他逻辑
-            _modbusService = modbusService;
-
-            _serviceProvider = serviceProvider;
-
-            ChannelOptions = new ObservableCollection<int>(Enumerable.Range(1, 7));
-
-        }
-
+            public RightPanelViewModel(IModbusService modbusService, IMessageService messageService, IServiceProvider serviceProvider)
+            {
+                // 初始化时可以添加一些默认数据或其他逻辑
+                _modbusService = modbusService;
+                _messageService = messageService;
+                _serviceProvider = serviceProvider;
+        
+                ChannelOptions = new ObservableCollection<int>(Enumerable.Range(1, 7));
+        
+            }
         // 是否显示弹框
         [ObservableProperty]
         private bool isClearChannelDialogOpen;
@@ -39,9 +39,32 @@ namespace SixForce.ViewModels
         public ObservableCollection<int> ChannelOptions { get; }
 
         /// <summary>
-        /// 订阅 LeftPanelViewModel
+        /// 订阅读取控制器并设置事件订阅
         /// </summary>
-        public void SubscribeToLeftPanel(LeftPanelViewModel leftPanel) => _leftPanelViewModel = leftPanel;
+        public void SubscribeToReadingController(IReadingController readingController) 
+        {
+            // 取消之前的事件订阅（如果存在）
+            if (_readingController != null)
+            {
+                _readingController.SensorDataUpdated -= OnSensorDataUpdated;
+            }
+            
+            _readingController = readingController;
+            
+            // 订阅传感器数据更新事件
+            readingController.SensorDataUpdated += OnSensorDataUpdated;
+        }
+        
+        /// <summary>
+        /// 传感器数据更新事件处理
+        /// </summary>
+        private void OnSensorDataUpdated(Dictionary<string, (string mvValue, string forceValue)> data)
+        {
+            foreach (var item in data)
+            {
+                UpdateData(item.Key, item.Value.mvValue, item.Value.forceValue);
+            }
+        }
 
         // 选中的通道（默认7 = 全部）
         [ObservableProperty]
@@ -83,16 +106,14 @@ namespace SixForce.ViewModels
             {
                 await _modbusService.ClearChannelAsync(SelectedChannel);
 
-                MessageBox.Show(
+                _messageService.ShowMessage(
                     SelectedChannel == 7 ? "已清零所有通道" : $"已清零通道 {SelectedChannel}",
-                    "成功",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
+                    "成功"
                 );
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"清零失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                _messageService.ShowMessage($"清零失败: {ex.Message}", "错误");
             }
             finally
             {
@@ -109,7 +130,7 @@ namespace SixForce.ViewModels
         [RelayCommand]
         private void OpenDecouplingMatrix()
         {
-            _leftPanelViewModel?.StopReading();
+            _readingController?.StopReading();
 
             var viewModel = _serviceProvider.GetService<DecouplingMatrixViewModel>();
             if (viewModel == null)
@@ -126,9 +147,9 @@ namespace SixForce.ViewModels
             // 窗口关闭时恢复数据读取
             window.Closed += (s, e) =>
             {
-                if (_leftPanelViewModel?.IsConnected == true)
+                if (_readingController?.IsConnected == true)
                 {
-                    _leftPanelViewModel?.StartReadingData();
+                    _readingController?.StartReadingData();
                 }
             };
 
@@ -142,16 +163,15 @@ namespace SixForce.ViewModels
         {
             try
             {
-                if (_leftPanelViewModel == null)
+                if (_readingController == null)
                 {
-                    MessageBox.Show("未绑定 LeftPanelViewModel，无法保存标定数据！",
-                        "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _messageService.ShowMessage("未绑定读取控制器，无法保存标定数据！", "错误");
                     return;
                 }
 
-                // 读取 LeftPanel 的 ProductId 和 Channel
-                string productId = _leftPanelViewModel.ProductId;
-                string channel = _leftPanelViewModel.SelectedChannel ?? "Channel_1";
+                // 读取 ProductId 和 Channel
+                string productId = _readingController.ProductId;
+                string channel = _readingController.SelectedChannel ?? "Channel_1";
 
                 // 如果切换了通道，就重置计数
                 if (_lastChannel != channel)
@@ -239,11 +259,11 @@ namespace SixForce.ViewModels
                     forceValues.Select(c => c ?? string.Empty).ToList(), 
                     imagePath);
 
-                MessageBox.Show($"数据已保存到:\n{excelPath}\n{imagePath}", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                _messageService.ShowMessage($"数据已保存到:\n{excelPath}\n{imagePath}", "成功");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"保存数据失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                _messageService.ShowMessage($"保存数据失败: {ex.Message}", "错误");
             }
         }
 
