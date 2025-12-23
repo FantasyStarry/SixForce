@@ -4,93 +4,117 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow" Height="700" Width="1200"
+        Title="DST德森特标定软件" 
+        Height="720" Width="1200"
+        MinHeight="600" MinWidth="960"
         Icon="/Assets/Images/favicon.ico"
-        Background="#F5F6FA">
-    <Grid Margin="5">
-        <!-- 上下布局 -->
+        Background="#F0F4F8"
+        WindowStartupLocation="CenterScreen">
+    
+    <Window.Resources>
+        <LinearGradientBrush x:Key="HeaderGradient" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#5B7FFF" Offset="0"/>
+            <GradientStop Color="#7C9FFF" Offset="1"/>
+        </LinearGradientBrush>
+    </Window.Resources>
+    
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="1.5*"/>
-            <RowDefinition Height="8.5*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- 顶部导航栏 -->
         <Border Grid.Row="0" 
-            Background="White" 
-            Margin="5"
-            CornerRadius="12"
-            Padding="5">
+                Background="White"
+                Padding="20,12">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="15" ShadowDepth="3" Opacity="0.25"/>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.05" Direction="270"/>
             </Border.Effect>
             <Grid>
-                <!-- 下拉框，绝对定位到左侧 -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                <StackPanel HorizontalAlignment="Left"
-                    VerticalAlignment="Center"
-                    Margin="10,0,0,0">
-                    <TextBlock Text="变速器型号"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               FontSize="14"/>
-                    <ComboBox Width="160"
-                      Height="36"
-                      FontSize="16"
-                      ItemsSource="{Binding Products}"
-                      SelectedItem="{Binding SelectedProduct}"/>
+                <!-- 左侧Logo和标题 -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="36" Height="36" CornerRadius="8" Background="{StaticResource HeaderGradient}">
+                        <TextBlock Text="六" 
+                                   FontSize="18" 
+                                   FontWeight="Bold" 
+                                   Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="DST德森特标定软件" 
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="#2D3748"/>
+                        <TextBlock Text="六分力传感器标定系统" 
+                                   FontSize="11"
+                                   Foreground="#A0AEC0"/>
+                    </StackPanel>
                 </StackPanel>
 
-                <!-- 标题，居中于整个 Grid -->
-                <TextBlock Text="DST德森特标定软件" 
-                   FontSize="36"
-                   FontWeight="Bold"
-                   Foreground="#333"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"/>
+                <!-- 中间产品选择 -->
+                <StackPanel Grid.Column="1" 
+                            Orientation="Horizontal" 
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="变速器型号" 
+                               FontSize="13"
+                               Foreground="#718096"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"/>
+                    <ComboBox Width="180"
+                              Height="34"
+                              FontSize="13"
+                              ItemsSource="{Binding Products}"
+                              SelectedItem="{Binding SelectedProduct}"/>
+                </StackPanel>
+
+                <!-- 右侧状态 -->
+                <Border Grid.Column="2" 
+                        Background="#F0FFF4" 
+                        CornerRadius="14" 
+                        Padding="10,5"
+                        VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="6" Height="6" Fill="#48BB78" Margin="0,0,6,0"/>
+                        <TextBlock Text="系统就绪" FontSize="12" Foreground="#276749"/>
+                    </StackPanel>
+                </Border>
             </Grid>
         </Border>
 
-        <!-- 下半部分 -->
-        <Grid Grid.Row="1" Margin="5">
+        <!-- 主内容区域 -->
+        <Grid Grid.Row="1" Margin="16">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.5*"/>
-                <ColumnDefinition Width="5*"/>
-                <ColumnDefinition Width="2.5*"/>
+                <ColumnDefinition Width="200" MinWidth="180"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="280" MinWidth="250"/>
             </Grid.ColumnDefinitions>
 
-            <!-- 左 -->
-            <Border x:Name="LeftArea" Grid.Column="0" 
-                    Background="White" 
-                    Margin="5"
-                    CornerRadius="12"
-                    Padding="5">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="12" ShadowDepth="3" Opacity="0.2"/>
-                </Border.Effect>
-            </Border>
+            <!-- 左侧面板 -->
+            <Border x:Name="LeftArea" 
+                    Grid.Column="0" 
+                    Style="{StaticResource CardStyle}"
+                    Margin="0,0,8,0"/>
 
-            <!-- 中 -->
-            <Border x:Name="CenterArea" Grid.Column="1" 
-                    Background="White" 
-                    Margin="5"
-                    CornerRadius="12"
-                    Padding="5">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.2"/>
-                </Border.Effect>
-            </Border>
+            <!-- 中间面板 -->
+            <Border x:Name="CenterArea" 
+                    Grid.Column="1" 
+                    Style="{StaticResource CardStyle}"
+                    Margin="8,0"/>
 
-            <!-- 右 -->
-            <Border
-                x:Name="RightArea"
-                Grid.Column="2" 
-                    Background="White" 
-                    Margin="5"
-                    CornerRadius="12"
-                    Padding="5">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.2"/>
-                </Border.Effect>
-            </Border>
+            <!-- 右侧面板 -->
+            <Border x:Name="RightArea"
+                    Grid.Column="2" 
+                    Style="{StaticResource CardStyle}"
+                    Margin="8,0,0,0"/>
         </Grid>
     </Grid>
 </Window>

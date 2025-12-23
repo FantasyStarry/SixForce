@@ -4,115 +4,108 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
-             Height="Auto" Width="Auto"
-             d:DesignHeight="480" d:DesignWidth="200">
-    <Grid>
+             d:DesignHeight="600" d:DesignWidth="220">
+    
+    <UserControl.Resources>
+        <Style x:Key="FormLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#718096"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid Margin="4">
         <Grid.RowDefinitions>
-            <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="10"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- 串口选择 -->
-        <StackPanel Grid.Row="1">
-            <TextBlock Text="串口选择" 
-                           FontWeight="Normal" 
-                           Foreground="#444" 
-                           FontSize="16"
-                           HorizontalAlignment="Center" />
-            <ComboBox Width="140" Height="28" Margin="0,5,0,0"
-                          ItemsSource="{Binding SerialPorts}"
-                          SelectedItem="{Binding SelectedSerialPort}"/>
+        <StackPanel Grid.Row="0" Margin="0,0,0,12">
+            <TextBlock Text="串口" Style="{StaticResource FormLabel}"/>
+            <ComboBox Height="32"
+                      ItemsSource="{Binding SerialPorts}"
+                      SelectedItem="{Binding SelectedSerialPort}"/>
         </StackPanel>
 
         <!-- 波特率 -->
-        <StackPanel Grid.Row="3">
-            <TextBlock Text="波特率" 
-                           FontWeight="Normal" 
-                           Foreground="#444" 
-                           FontSize="16"
-                           HorizontalAlignment="Center"/>
-            <ComboBox Width="140" Height="28" Margin="0,5,0,0"
-                          ItemsSource="{Binding BaudRates}"
-                          SelectedItem="{Binding SelectedBaudRate}"/>
+        <StackPanel Grid.Row="1" Margin="0,0,0,12">
+            <TextBlock Text="波特率" Style="{StaticResource FormLabel}"/>
+            <ComboBox Height="32"
+                      ItemsSource="{Binding BaudRates}"
+                      SelectedItem="{Binding SelectedBaudRate}"/>
         </StackPanel>
 
         <!-- 机码 -->
-        <StackPanel Grid.Row="5">
-            <TextBlock Text="机码" 
-                           FontWeight="Normal" 
-                           Foreground="#444" 
-                           FontSize="16"
-                           HorizontalAlignment="Center"/>
-            <TextBox Width="140" Height="28" Margin="0,5,0,0"
-                         TextAlignment="Center"
-                         HorizontalContentAlignment="Center"
-                         HorizontalAlignment="Center"
-                         VerticalAlignment="Center"
-                         VerticalContentAlignment="Center"
-                         Text="{Binding MachineCode}"/>
+        <StackPanel Grid.Row="2" Margin="0,0,0,12">
+            <TextBlock Text="机码" Style="{StaticResource FormLabel}"/>
+            <TextBox Height="32"
+                     TextAlignment="Center"
+                     VerticalContentAlignment="Center"
+                     Text="{Binding MachineCode}"/>
         </StackPanel>
 
-        <!-- 标定产品编号 -->
-        <StackPanel Grid.Row="7">
-            <TextBlock Text="标定产品编号" 
-                           FontWeight="Normal" 
-                           Foreground="#444" 
-                           FontSize="16"
-                           HorizontalAlignment="Center"/>
-            <TextBox Width="140" Height="28" Margin="0,5,0,0"
-                         HorizontalContentAlignment="Center"
-                         HorizontalAlignment="Center"
-                         VerticalAlignment="Center"
-                         VerticalContentAlignment="Center"
-                         Text="{Binding ProductId}"/>
+        <!-- 产品编号 -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,12">
+            <TextBlock Text="产品编号" Style="{StaticResource FormLabel}"/>
+            <TextBox Height="32"
+                     TextAlignment="Center"
+                     VerticalContentAlignment="Center"
+                     Text="{Binding ProductId}"/>
         </StackPanel>
 
-        <!-- 当前标定通道 -->
-        <StackPanel Grid.Row="9">
-            <TextBlock Text="当前标定通道" 
-                           FontWeight="Normal" 
-                           Foreground="#444" 
-                           FontSize="16"
-                           HorizontalAlignment="Center"/>
-            <ComboBox Width="140" Height="28" Margin="0,5,0,0"
-                          ItemsSource="{Binding Channels}"
-                          SelectedItem="{Binding SelectedChannel}"/>
+        <!-- 标定通道 -->
+        <StackPanel Grid.Row="4" Margin="0,0,0,12">
+            <TextBlock Text="标定通道" Style="{StaticResource FormLabel}"/>
+            <ComboBox Height="32"
+                      ItemsSource="{Binding Channels}"
+                      SelectedItem="{Binding SelectedChannel}"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="11">
-            <TextBlock Text="{Binding IsConnected, StringFormat=连接状态: {0}}"
-                    FontSize="16" Foreground="Gray" HorizontalAlignment="Center"/>
-        </StackPanel>
+        <!-- 连接状态 -->
+        <Border Grid.Row="5" 
+                Background="#F7FAFC" 
+                CornerRadius="6" 
+                Padding="10,8"
+                Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal">
+                <Ellipse Width="8" Height="8" Fill="#A0AEC0" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding IsConnected, StringFormat=连接状态: {0}}"
+                           FontSize="12" 
+                           Foreground="#718096"
+                           VerticalAlignment="Center"
+                           Margin="8,0,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 占位 -->
+        <Grid Grid.Row="6"/>
 
         <!-- 操作按钮 -->
-        <StackPanel Grid.Row="13" Orientation="Vertical" HorizontalAlignment="Center">
-            <Button Content="连接串口" Width="140" Height="40" Margin="0,0,0,5"
-                        Background="#4CAF50" Command="{Binding ConnectCommand}"
-                        FontSize="16" FontWeight="Medium" IsEnabled="{Binding CanConnect}">
+        <StackPanel Grid.Row="7">
+            <Button Content="连接串口" 
+                    Height="36"
+                    Style="{StaticResource SuccessButton}"
+                    Command="{Binding ConnectCommand}"
+                    IsEnabled="{Binding CanConnect}"
+                    Margin="0,0,0,8">
                 <Button.ToolTip>
                     <ToolTip>
-                        <StackPanel>
-                            <TextBlock Text="点击连接串口并开始读取数据"/>
-                            <TextBlock Text="将自动开始刷新传感器数据"/>
-                        </StackPanel>
+                        <TextBlock Text="点击连接串口并开始读取数据"/>
                     </ToolTip>
                 </Button.ToolTip>
             </Button>
-            <Button Content="断开串口" Width="140" Height="40" Margin="0,0,0,0"
-                        Background="#F44336" Command="{Binding DisconnectCommand}"
-                        FontSize="16" FontWeight="Medium" IsEnabled="{Binding CanDisconnect}" />
+            <Button Content="断开连接" 
+                    Height="36"
+                    Style="{StaticResource DangerButton}"
+                    Command="{Binding DisconnectCommand}"
+                    IsEnabled="{Binding CanDisconnect}"/>
         </StackPanel>
     </Grid>
 </UserControl>

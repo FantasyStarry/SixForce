@@ -5,8 +5,85 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SixForce.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Canvas x:Name="CurveCanvas" Background="White" Width="500" Height="300"/>
+             d:DesignHeight="600" d:DesignWidth="600">
+    
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题和图例 -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="实时数据曲线" 
+                           FontSize="15"
+                           FontWeight="SemiBold"
+                           Foreground="#2D3748"/>
+                <TextBlock Text="传感器数据可视化监控" 
+                           FontSize="11"
+                           Foreground="#A0AEC0"
+                           Margin="0,2,0,0"/>
+            </StackPanel>
+
+            <!-- 图例 -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Margin="0,0,12,0">
+                    <Ellipse Width="6" Height="6" Fill="#FC8181"/>
+                    <TextBlock Text="Fx" FontSize="11" Foreground="#718096" Margin="4,0,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,12,0">
+                    <Ellipse Width="6" Height="6" Fill="#68D391"/>
+                    <TextBlock Text="Fy" FontSize="11" Foreground="#718096" Margin="4,0,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="6" Height="6" Fill="#63B3ED"/>
+                    <TextBlock Text="Fz" FontSize="11" Foreground="#718096" Margin="4,0,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <!-- 曲线画布区域 - 自适应填充 -->
+        <Border Grid.Row="1" 
+                Background="#FAFBFC"
+                CornerRadius="8"
+                BorderBrush="#EDF2F7"
+                BorderThickness="1"
+                ClipToBounds="True">
+            <Grid>
+                <!-- 网格背景 -->
+                <Canvas ClipToBounds="True">
+                    <Canvas.Background>
+                        <DrawingBrush TileMode="Tile" 
+                                      Viewport="0,0,50,50" 
+                                      ViewportUnits="Absolute">
+                            <DrawingBrush.Drawing>
+                                <GeometryDrawing>
+                                    <GeometryDrawing.Geometry>
+                                        <GeometryGroup>
+                                            <LineGeometry StartPoint="0,0" EndPoint="50,0"/>
+                                            <LineGeometry StartPoint="0,0" EndPoint="0,50"/>
+                                        </GeometryGroup>
+                                    </GeometryDrawing.Geometry>
+                                    <GeometryDrawing.Pen>
+                                        <Pen Brush="#E2E8F0" Thickness="0.5"/>
+                                    </GeometryDrawing.Pen>
+                                </GeometryDrawing>
+                            </DrawingBrush.Drawing>
+                        </DrawingBrush>
+                    </Canvas.Background>
+                </Canvas>
+                
+                <!-- 数据曲线画布 -->
+                <Canvas x:Name="CurveCanvas" 
+                        Background="Transparent"
+                        ClipToBounds="True"/>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

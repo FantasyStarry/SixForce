@@ -6,121 +6,146 @@
              xmlns:views="clr-namespace:SixForce.Views"
              xmlns:converters="clr-namespace:SixForce.Converters"
              mc:Ignorable="d" 
-             Height="Auto" Width="Auto"
-             d:DesignHeight="480" d:DesignWidth="333">
+             d:DesignHeight="600" d:DesignWidth="300">
+    
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
-    <Grid>
+    
+    <Grid Margin="4">
         <Grid.RowDefinitions>
-            <RowDefinition Height="2*"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- 数据表格 -->
-        <DataGrid Grid.Row="0"
-                  Style="{StaticResource DataGridStyle}"
-                  ItemsSource="{Binding CalibrationData}"
-                  AutoGenerateColumns="False"
-                  IsReadOnly="True"
-                  HeadersVisibility="Column"
-                  SelectionUnit="Cell">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="参数" 
-                                   Binding="{Binding Channel}" 
-                                   Width="1*"/>
-                <DataGridTextColumn Header="电压值(mV)" 
-                                   Binding="{Binding MvValue}" 
-                                   Width="1.5*"/>
-                <DataGridTextColumn Header="力值(N)" 
-                                   Binding="{Binding ForceValue}" 
-                                   Width="1.5*"/>
-            </DataGrid.Columns>
-        </DataGrid>
-        <!-- 下方编辑区域 -->
-        <Border Grid.Row="1" Margin="5,0" CornerRadius="10"  Background="White" BorderBrush="#DDD" BorderThickness="0,1,0,1">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <!-- 左边参数显示 -->
-                    <ColumnDefinition Width="1*"/>
-                    <!-- 按钮区 -->
-                </Grid.ColumnDefinitions>
-
-                <!-- 左边参数输入 -->
-                <StackPanel Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="当前编辑参数" 
-                               FontWeight="Medium"
-                               FontSize="16"
-                               HorizontalAlignment="Center" 
-                               Margin="0,0,0,10"/>
-                    <TextBox Text="485通讯波特率" 
-                             HorizontalContentAlignment="Center" 
-                             VerticalContentAlignment="Center"
-                             Width="180" Height="30"
-                             BorderBrush="#CCC" BorderThickness="1"
-                             Background="#F5F6FA"
-                             IsReadOnly="True"
-                             FontSize="16"
-                             />
-                    <Button Content="修改参数" 
-                            Width="100" Height="30" 
-                            FontSize="16"
-                            FontWeight="Medium"
-                            Margin="0,10,0,0"
-                            Background="#90CAF9"
-                            HorizontalAlignment="Center"/>
-                </StackPanel>
-
-                <!-- 右边按钮 -->
-                <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                    <Button Content="清零" 
-                            FontSize="16" 
-                            Width="90" 
-                            Height="30" 
-                            Background="#90CAF9" 
-                            Margin="0, 0, 0, 20"
-                            Command="{Binding ShowClearChannelDialogCommand}"/>
-                    <Button Content="校准"
-                            FontSize="16"
-                            Width="90"
-                            Height="30" 
-                            Background="#90CAF9"
-                            Command="{Binding SaveCalibrationDataCommand}"/>
-                </StackPanel>
-
-                <!-- 弹窗 -->
-                <Grid Visibility="{Binding IsClearChannelDialogOpen, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <!-- 半透明遮罩 -->
-                    <Rectangle Fill="#80000000"/>
-
-                    <Popup IsOpen="{Binding IsClearChannelDialogOpen}" 
-               StaysOpen="False"
-               Placement="Center" 
-               HorizontalOffset="0" VerticalOffset="0">
-                        <views:ClearChannelDialog/>
-                    </Popup>
-                </Grid>
-            </Grid>
+        <!-- 数据表格区域 - 自适应高度 -->
+        <Border Grid.Row="0" 
+                Background="#FAFBFC"
+                CornerRadius="8"
+                BorderBrush="#EDF2F7"
+                BorderThickness="1">
+            <DataGrid Style="{StaticResource DataGridStyle}"
+                      ItemsSource="{Binding CalibrationData}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      HeadersVisibility="Column"
+                      SelectionUnit="Cell"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="参数" 
+                                        Binding="{Binding Channel}" 
+                                        Width="0.8*"/>
+                    <DataGridTextColumn Header="电压(mV)" 
+                                        Binding="{Binding MvValue}" 
+                                        Width="*"/>
+                    <DataGridTextColumn Header="力值(N)" 
+                                        Binding="{Binding ForceValue}" 
+                                        Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
         </Border>
 
-        <!-- 第三行：无需边框 -->
-        <Border Grid.Row="2" BorderThickness="0,1 ,0 ,0">
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Button Content="解耦系数" 
-                        FontSize="16"
-                        Width="120"
-                        Height="40"
-                        Background="#90CAF9"
-                        Command="{Binding OpenDecouplingMatrixCommand}"/>
-                <TextBlock Text="更多功能待开发" 
-                           HorizontalAlignment="Center" 
-                           VerticalAlignment="Center" 
-                           FontSize="16" 
-                           Margin="0,10,0,10"/>
+        <!-- 参数编辑区域 -->
+        <Border Grid.Row="1" 
+                Background="#F7FAFC"
+                CornerRadius="8"
+                Margin="0,12,0,0"
+                Padding="12">
+            <StackPanel>
+                <TextBlock Text="参数设置" 
+                           FontSize="12"
+                           Foreground="#A0AEC0"
+                           Margin="0,0,0,8"/>
+                
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                        <TextBlock Text="当前参数" 
+                                   FontSize="11"
+                                   Foreground="#718096"
+                                   Margin="0,0,0,4"/>
+                        <TextBox Text="485通讯波特率" 
+                                 Height="32"
+                                 IsReadOnly="True"
+                                 Background="White"
+                                 FontSize="12"/>
+                    </StackPanel>
+                    
+                    <Button Grid.Column="1"
+                            Content="修改"
+                            Width="50"
+                            Height="32"
+                            FontSize="12"
+                            VerticalAlignment="Bottom"
+                            Background="#EDF2F7"
+                            Foreground="#4A5568"/>
+                </Grid>
+
+                <!-- 操作按钮 -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0"
+                            Content="清零"
+                            Height="34"
+                            Background="#FED7D7"
+                            Foreground="#C53030"
+                            Command="{Binding ShowClearChannelDialogCommand}"/>
+                    <Button Grid.Column="2"
+                            Content="校准"
+                            Height="34"
+                            Background="{StaticResource PrimaryBrush}"
+                            Command="{Binding SaveCalibrationDataCommand}"/>
+                </Grid>
             </StackPanel>
         </Border>
+
+        <!-- 高级功能区域 -->
+        <Border Grid.Row="2" 
+                Margin="0,12,0,0"
+                Padding="12"
+                Background="White"
+                CornerRadius="8"
+                BorderBrush="#EDF2F7"
+                BorderThickness="1">
+            <StackPanel>
+                <TextBlock Text="高级功能" 
+                           FontSize="12"
+                           Foreground="#A0AEC0"
+                           Margin="0,0,0,8"/>
+                
+                <Button Content="解耦系数编辑"
+                        Height="36"
+                        Style="{StaticResource OutlineButton}"
+                        Command="{Binding OpenDecouplingMatrixCommand}"/>
+                
+                <TextBlock Text="更多功能开发中..." 
+                           FontSize="11"
+                           Foreground="#A0AEC0"
+                           HorizontalAlignment="Center"
+                           Margin="0,10,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 弹窗遮罩层 -->
+        <Grid Grid.RowSpan="3"
+              Visibility="{Binding IsClearChannelDialogOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Rectangle Fill="#80000000"/>
+            <Popup IsOpen="{Binding IsClearChannelDialogOpen}" 
+                   StaysOpen="False"
+                   Placement="Center">
+                <views:ClearChannelDialog/>
+            </Popup>
+        </Grid>
     </Grid>
 </UserControl>
-
