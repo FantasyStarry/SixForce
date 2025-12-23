@@ -15,6 +15,6 @@
         public ushort RegistersPerElement { get; set; }
         public ushort SkipRegistersPerRow { get; set; }
         public ushort SaveParametersAddress { get; set; } // 新增保存地址
-        public int[] SaveParametersValue { get; set; } // 新增保存值
+        public required int[] SaveParametersValue { get; set; } // 新增保存值
     }
 }

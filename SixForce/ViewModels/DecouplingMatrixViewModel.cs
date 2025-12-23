@@ -10,7 +10,7 @@ namespace SixForce.ViewModels
     public class MatrixRow : ObservableObject
     {
         public int RowIndex { get; set; }
-        private ObservableCollection<int> _values = new ObservableCollection<int>(Enumerable.Repeat(0, 6));
+        private ObservableCollection<int> _values = new(Enumerable.Repeat(0, 6));
         public ObservableCollection<int> Values
         {
             get => _values;
@@ -22,7 +22,7 @@ namespace SixForce.ViewModels
     {
         private readonly IModbusService _modbusService;
         private readonly IMessageService _messageService;
-        public ObservableCollection<MatrixRow> MatrixRows { get; } = new ObservableCollection<MatrixRow>();
+        public ObservableCollection<MatrixRow> MatrixRows { get; } = [];
 
         public DecouplingMatrixViewModel(IModbusService modbusService, IMessageService messageService)
         {

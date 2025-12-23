@@ -133,12 +133,12 @@ namespace SixForce.Services
                             // 组合数据
                             var data = new Dictionary<string, (string mvValue, string forceValue)>
                             {
-                                { "Fx", (mvValues[0], forceValues[0]) },
-                                { "Fy", (mvValues[1], forceValues[1]) },
-                                { "Fz", (mvValues[2], forceValues[2]) },
-                                { "Mx", (mvValues[3], forceValues[3]) },
-                                { "My", (mvValues[4], forceValues[4]) },
-                                { "Mz", (mvValues[5], forceValues[5]) }
+                                ["Fx"] = (mvValues[0], forceValues[0]),
+                                ["Fy"] = (mvValues[1], forceValues[1]),
+                                ["Fz"] = (mvValues[2], forceValues[2]),
+                                ["Mx"] = (mvValues[3], forceValues[3]),
+                                ["My"] = (mvValues[4], forceValues[4]),
+                                ["Mz"] = (mvValues[5], forceValues[5])
                             };
 
                             _callback?.Invoke(data);
@@ -182,6 +182,7 @@ namespace SixForce.Services
         {
             Disconnect();
             _serialPort.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public async Task ClearChannelAsync(int channel)
@@ -356,7 +357,7 @@ namespace SixForce.Services
             await Task.Delay(50); // 给设备一些时间处理
         }
 
-        private byte[] BuildWriteRegistersRequest(byte slaveId, ushort startAddress, int[] values)
+        private static byte[] BuildWriteRegistersRequest(byte slaveId, ushort startAddress, int[] values)
         {
             if (values == null || values.Length == 0) throw new ArgumentException("Values cannot be empty");
             int registerCount = values.Length * 2;  // 每个int占2寄存器
@@ -388,7 +389,7 @@ namespace SixForce.Services
         }
 
 
-        private byte[] BuildModbusReadRequest(byte slaveId, ushort startAddress, ushort registerCount)
+        private static byte[] BuildModbusReadRequest(byte slaveId, ushort startAddress, ushort registerCount)
         {
             byte[] request = new byte[8];
             request[0] = slaveId; // 从机地址
@@ -407,7 +408,7 @@ namespace SixForce.Services
         /// 构造一个写 2 个寄存器（一个 32 位值）的请求
         /// 功能码 0x10, 长度固定 2
         /// </summary>
-        private byte[] BuildWriteTwoRegistersRequest(byte slaveId, ushort startAddress, int value)
+        private static byte[] BuildWriteTwoRegistersRequest(byte slaveId, ushort startAddress, int value)
         {
             ushort highWord = (ushort)(value >> 16);
             ushort lowWord = (ushort)(value & 0xFFFF);
@@ -475,8 +476,8 @@ namespace SixForce.Services
                         int toRead = Math.Min(available, expectedLength - bytesRead);
                         int n = _serialPort.Read(response, bytesRead, toRead);
                         bytesRead += n;
-                        Trace.WriteLine($"接收中: {BitConverter.ToString(response.Take(bytesRead).ToArray())}");
-                        Console.WriteLine($"接收中: {BitConverter.ToString(response.Take(bytesRead).ToArray())}");
+                        Trace.WriteLine($"接收中: {BitConverter.ToString([.. response.Take(bytesRead)])}");
+                        Console.WriteLine($"接收中: {BitConverter.ToString([.. response.Take(bytesRead)])}");
                     }
                     else
                     {
@@ -485,8 +486,8 @@ namespace SixForce.Services
                     }
                 }
 
-                Trace.WriteLine("接收完成: " + BitConverter.ToString(response.Take(bytesRead).ToArray()));
-                Console.WriteLine("接收完成: " + BitConverter.ToString(response.Take(bytesRead).ToArray()));
+                Trace.WriteLine("接收完成: " + BitConverter.ToString([.. response.Take(bytesRead)]));
+                Console.WriteLine("接收完成: " + BitConverter.ToString([.. response.Take(bytesRead)]));
 
                 // 检查异常响应
                 if ((response[1] & 0x80) != 0) // 异常响应
@@ -529,9 +530,9 @@ namespace SixForce.Services
         }
 
 
-        private string[] ParseForceValues(byte[] response)
+        private static string[] ParseForceValues(byte[] response)
         {
-            string[] channels = { "Fx", "Fy", "Fz", "Mx", "My", "Mz" };
+            string[] channels = ["Fx", "Fy", "Fz", "Mx", "My", "Mz"];
             string[] values = new string[6];
 
             // 验证响应长度：地址(1) + 功能码(1) + 字节计数(1) + 数据(24) + CRC(2) = 29 字节
@@ -564,7 +565,7 @@ namespace SixForce.Services
             return values;
         }
 
-        private string[] ParseMvValues(byte[] response)
+        private static string[] ParseMvValues(byte[] response)
         {
             string[] values = new string[6];
 
@@ -596,7 +597,7 @@ namespace SixForce.Services
             return values;
         }
 
-        private ushort CalculateCRC(byte[] data, int start, int length)
+        private static ushort CalculateCRC(byte[] data, int start, int length)
         {
             ushort crc = 0xFFFF;
             for (int pos = start; pos < start + length; pos++)
@@ -618,7 +619,7 @@ namespace SixForce.Services
             return crc;
         }
 
-        private int GetExpectedResponseLength(byte[] request)
+        private static int GetExpectedResponseLength(byte[] request)
         {
             byte functionCode = request[1];
             ushort registerCount = (ushort)((request[4] << 8) | request[5]);

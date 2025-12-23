@@ -4,25 +4,26 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             d:DesignHeight="500" d:DesignWidth="800">
+             d:DesignHeight="480" d:DesignWidth="720">
     
     <UserControl.Resources>
         <!-- 操作按钮样式 -->
         <Style x:Key="MatrixButton" TargetType="Button">
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="MinWidth" Value="90"/>
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="#4A5568"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="20,0"/>
+            <Setter Property="Padding" Value="16,0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border" 
                                 Background="{TemplateBinding Background}" 
-                                CornerRadius="8"
+                                CornerRadius="6"
                                 BorderBrush="#E2E8F0"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 Padding="{TemplateBinding Padding}">
@@ -52,7 +53,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border" 
                                 Background="{TemplateBinding Background}" 
-                                CornerRadius="8"
+                                CornerRadius="6"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -68,169 +69,170 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-        <!-- DataGrid 样式 -->
-        <Style x:Key="MatrixDataGrid" TargetType="DataGrid">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#E2E8F0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="RowBackground" Value="White"/>
-            <Setter Property="AlternatingRowBackground" Value="#FAFBFC"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="GridLinesVisibility" Value="All"/>
-            <Setter Property="HorizontalGridLinesBrush" Value="#EDF2F7"/>
-            <Setter Property="VerticalGridLinesBrush" Value="#EDF2F7"/>
-            <Setter Property="RowHeight" Value="44"/>
-            <Setter Property="ColumnHeaderHeight" Value="48"/>
-        </Style>
-
-        <!-- 列标题样式 -->
-        <Style x:Key="MatrixColumnHeader" TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#F8FAFC"/>
-            <Setter Property="Foreground" Value="#718096"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="12,0"/>
-            <Setter Property="BorderBrush" Value="#EDF2F7"/>
-            <Setter Property="BorderThickness" Value="0,0,1,1"/>
-        </Style>
     </UserControl.Resources>
 
-    <Border Background="White" CornerRadius="12" Padding="24">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.08" Direction="270"/>
-        </Border.Effect>
-        
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <!-- 标题区 -->
-            <Border Grid.Row="0" 
-                    Padding="0,0,0,20"
-                    BorderBrush="#EDF2F7"
-                    BorderThickness="0,0,0,1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="解耦系数编辑" 
-                                   FontSize="20" 
-                                   FontWeight="SemiBold" 
-                                   Foreground="#2D3748"/>
-                        <TextBlock Text="编辑六分力传感器解耦矩阵参数" 
-                                   FontSize="13"
-                                   Foreground="#A0AEC0"
-                                   Margin="0,6,0,0"/>
-                    </StackPanel>
-
-                    <!-- 状态标签 -->
-                    <Border Grid.Column="1"
-                            Background="#F0FFF4"
-                            CornerRadius="16"
-                            Padding="12,6"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="6x6 矩阵" 
-                                   FontSize="12"
-                                   Foreground="#276749"/>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- 按钮区 -->
-            <Border Grid.Row="1" Padding="0,20">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Content="创建文件" 
-                            Style="{StaticResource MatrixButton}"
-                            Command="{Binding CreateFileCommand}"
-                            Margin="0,0,12,0"/>
-                    <Button Content="读取文件" 
-                            Style="{StaticResource MatrixButton}"
-                            Command="{Binding ReadFileCommand}"
-                            Margin="0,0,12,0"/>
-                    <Button Content="写入变送器" 
-                            Style="{StaticResource PrimaryMatrixButton}"
-                            Command="{Binding WriteToDeviceCommand}"
-                            Margin="0,0,12,0"/>
-                    <Button Content="读取变送器" 
-                            Style="{StaticResource PrimaryMatrixButton}"
-                            Command="{Binding ReadFromDeviceCommand}"/>
+        <!-- 标题区 -->
+        <Border Grid.Row="0" Padding="20,16">
+            <Grid>
+                <StackPanel>
+                    <TextBlock Text="解耦系数编辑" 
+                               FontSize="18" 
+                               FontWeight="SemiBold" 
+                               Foreground="#2D3748"/>
+                    <TextBlock Text="编辑六分力传感器解耦矩阵参数 (6×6)" 
+                               FontSize="12"
+                               Foreground="#A0AEC0"
+                               Margin="0,4,0,0"/>
                 </StackPanel>
-            </Border>
+            </Grid>
+        </Border>
 
-            <!-- 矩阵显示 -->
-            <Border Grid.Row="2" 
-                    CornerRadius="8"
+        <!-- 按钮区 -->
+        <Border Grid.Row="1" 
+                Padding="20,0,20,16"
+                BorderBrush="#EDF2F7"
+                BorderThickness="0,0,0,1">
+            <WrapPanel HorizontalAlignment="Left">
+                <Button Content="创建文件" 
+                        Style="{StaticResource MatrixButton}"
+                        Command="{Binding CreateFileCommand}"
+                        Margin="0,0,10,0"/>
+                <Button Content="读取文件" 
+                        Style="{StaticResource MatrixButton}"
+                        Command="{Binding ReadFileCommand}"
+                        Margin="0,0,10,0"/>
+                <Button Content="写入变送器" 
+                        Style="{StaticResource PrimaryMatrixButton}"
+                        Command="{Binding WriteToDeviceCommand}"
+                        Margin="0,0,10,0"/>
+                <Button Content="读取变送器" 
+                        Style="{StaticResource PrimaryMatrixButton}"
+                        Command="{Binding ReadFromDeviceCommand}"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- 矩阵表格 -->
+        <Grid Grid.Row="2" Margin="20,16,20,20">
+            <Border CornerRadius="8"
                     BorderBrush="#E2E8F0"
                     BorderThickness="1"
                     ClipToBounds="True">
-                <DataGrid ItemsSource="{Binding MatrixRows}" 
-                          Style="{StaticResource MatrixDataGrid}"
-                          AutoGenerateColumns="False" 
-                          CanUserAddRows="False"
-                          ColumnWidth="*" 
-                          HeadersVisibility="Column"
-                          ColumnHeaderStyle="{StaticResource MatrixColumnHeader}">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="行" 
-                                            Binding="{Binding RowIndex}" 
-                                            IsReadOnly="True" 
-                                            Width="60"/>
-                        <DataGridTextColumn Header="Fx"
-                                            Binding="{Binding Values[0], UpdateSourceTrigger=PropertyChanged}"
-                                            Width="*"/>
-                        <DataGridTextColumn Header="Fy" 
-                                            Binding="{Binding Values[1], UpdateSourceTrigger=PropertyChanged}" 
-                                            Width="*"/>
-                        <DataGridTextColumn Header="Fz" 
-                                            Binding="{Binding Values[2], UpdateSourceTrigger=PropertyChanged}" 
-                                            Width="*"/>
-                        <DataGridTextColumn Header="Mx" 
-                                            Binding="{Binding Values[3], UpdateSourceTrigger=PropertyChanged}" 
-                                            Width="*"/>
-                        <DataGridTextColumn Header="My" 
-                                            Binding="{Binding Values[4], UpdateSourceTrigger=PropertyChanged}" 
-                                            Width="*"/>
-                        <DataGridTextColumn Header="Mz" 
-                                            Binding="{Binding Values[5], UpdateSourceTrigger=PropertyChanged}"
-                                            Width="*"/>
-                    </DataGrid.Columns>
-                    
-                    <DataGrid.CellStyle>
-                        <Style TargetType="DataGridCell">
-                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                            <Setter Property="Padding" Value="8"/>
-                            <Setter Property="BorderThickness" Value="0"/>
-                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="DataGridCell">
-                                        <Border Background="{TemplateBinding Background}" 
-                                                Padding="{TemplateBinding Padding}">
-                                            <ContentPresenter VerticalAlignment="Center" 
-                                                              HorizontalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="#E8EDFF"/>
-                                    <Setter Property="Foreground" Value="#2D3748"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.CellStyle>
-                </DataGrid>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- 表头 -->
+                    <Border Grid.Row="0" Background="#F8FAFC" BorderBrush="#EDF2F7" BorderThickness="0,0,0,1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="行" FontWeight="SemiBold" FontSize="13" Foreground="#718096" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="Fx" FontWeight="SemiBold" FontSize="13" Foreground="#718096" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="Fy" FontWeight="SemiBold" FontSize="13" Foreground="#718096" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="Fz" FontWeight="SemiBold" FontSize="13" Foreground="#718096" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Text="Mx" FontWeight="SemiBold" FontSize="13" Foreground="#718096" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="5" Text="My" FontWeight="SemiBold" FontSize="13" Foreground="#718096" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="6" Text="Mz" FontWeight="SemiBold" FontSize="13" Foreground="#718096" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- 数据行 -->
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding MatrixRows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#EDF2F7" BorderThickness="0,0,0,1" Height="50">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <!-- 行号 -->
+                                        <TextBlock Grid.Column="0" 
+                                                   Text="{Binding RowIndex}" 
+                                                   FontSize="14"
+                                                   FontWeight="Medium"
+                                                   Foreground="#4A5568"
+                                                   HorizontalAlignment="Center" 
+                                                   VerticalAlignment="Center"/>
+                                        
+                                        <!-- 数据输入框 -->
+                                        <TextBox Grid.Column="1" 
+                                                 Text="{Binding Values[0], UpdateSourceTrigger=PropertyChanged}"
+                                                 FontSize="14"
+                                                 HorizontalContentAlignment="Center"
+                                                 VerticalContentAlignment="Center"
+                                                 BorderThickness="0"
+                                                 Background="Transparent"
+                                                 Margin="4"/>
+                                        <TextBox Grid.Column="2" 
+                                                 Text="{Binding Values[1], UpdateSourceTrigger=PropertyChanged}"
+                                                 FontSize="14"
+                                                 HorizontalContentAlignment="Center"
+                                                 VerticalContentAlignment="Center"
+                                                 BorderThickness="0"
+                                                 Background="Transparent"
+                                                 Margin="4"/>
+                                        <TextBox Grid.Column="3" 
+                                                 Text="{Binding Values[2], UpdateSourceTrigger=PropertyChanged}"
+                                                 FontSize="14"
+                                                 HorizontalContentAlignment="Center"
+                                                 VerticalContentAlignment="Center"
+                                                 BorderThickness="0"
+                                                 Background="Transparent"
+                                                 Margin="4"/>
+                                        <TextBox Grid.Column="4" 
+                                                 Text="{Binding Values[3], UpdateSourceTrigger=PropertyChanged}"
+                                                 FontSize="14"
+                                                 HorizontalContentAlignment="Center"
+                                                 VerticalContentAlignment="Center"
+                                                 BorderThickness="0"
+                                                 Background="Transparent"
+                                                 Margin="4"/>
+                                        <TextBox Grid.Column="5" 
+                                                 Text="{Binding Values[4], UpdateSourceTrigger=PropertyChanged}"
+                                                 FontSize="14"
+                                                 HorizontalContentAlignment="Center"
+                                                 VerticalContentAlignment="Center"
+                                                 BorderThickness="0"
+                                                 Background="Transparent"
+                                                 Margin="4"/>
+                                        <TextBox Grid.Column="6" 
+                                                 Text="{Binding Values[5], UpdateSourceTrigger=PropertyChanged}"
+                                                 FontSize="14"
+                                                 HorizontalContentAlignment="Center"
+                                                 VerticalContentAlignment="Center"
+                                                 BorderThickness="0"
+                                                 Background="Transparent"
+                                                 Margin="4"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
             </Border>
         </Grid>
-    </Border>
+    </Grid>
 </UserControl>
