@@ -1,0 +1,197 @@
+<UserControl x:Class="SixForce.Views.RecordHistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converters="clr-namespace:SixForce.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="350">
+    
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <!-- 记录项样式 -->
+        <Style x:Key="RecordItemStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ThemeSurfaceBrush}"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource ThemeCardBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- 标题栏 -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <TextBlock Text="历史记录" 
+                       FontSize="14"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                       VerticalAlignment="Center"/>
+            
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Content="刷新"
+                        Width="50"
+                        Height="28"
+                        FontSize="11"
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding LoadRecordsCommand}"
+                        Margin="0,0,6,0"/>
+                <Button Content="打开目录"
+                        Width="60"
+                        Height="28"
+                        FontSize="11"
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding OpenSaveDirectoryCommand}"/>
+            </StackPanel>
+        </Grid>
+        
+        <!-- 记录列表 -->
+        <ScrollViewer Grid.Row="1" 
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding Records}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource RecordItemStyle}">
+                            <Border.InputBindings>
+                                <MouseBinding MouseAction="LeftDoubleClick" 
+                                              Command="{Binding DataContext.ViewRecordCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                              CommandParameter="{Binding}"/>
+                            </Border.InputBindings>
+                            
+                            <!-- 鼠标悬停时显示注释的ToolTip -->
+                            <Border.ToolTip>
+                                <ToolTip Visibility="{Binding HasComment, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <StackPanel MaxWidth="300">
+                                        <TextBlock Text="注释:" 
+                                                   FontWeight="SemiBold"
+                                                   Margin="0,0,0,4"/>
+                                        <TextBlock Text="{Binding Comment}" 
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </ToolTip>
+                            </Border.ToolTip>
+                            
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <!-- 记录名称 -->
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" 
+                                                   FontSize="13"
+                                                   FontWeight="Medium"
+                                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                                        <!-- 有注释时显示图标 -->
+                                        <TextBlock Text="📝" 
+                                                   FontSize="11"
+                                                   Margin="6,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   Visibility="{Binding HasComment, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    </StackPanel>
+                                    
+                                    <!-- 时间和数据点信息 -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                        <TextBlock Text="{Binding StartTimeDisplay}" 
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                                        <TextBlock Text=" · " 
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                                        <TextBlock Text="{Binding DurationDisplay}" 
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                                        <TextBlock Text=" · " 
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                                        <TextBlock FontSize="11"
+                                                   Foreground="{DynamicResource ThemeTextMutedBrush}">
+                                            <Run Text="{Binding PointCount, Mode=OneWay}"/>
+                                            <Run Text="点"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </StackPanel>
+                                
+                                <!-- 操作按钮 -->
+                                <StackPanel Grid.Column="1" 
+                                            Orientation="Horizontal"
+                                            VerticalAlignment="Center">
+                                    <Button Content="查看"
+                                            Width="40"
+                                            Height="26"
+                                            FontSize="11"
+                                            Style="{StaticResource OutlineButton}"
+                                            Command="{Binding DataContext.ViewRecordCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"
+                                            Margin="0,0,6,0"/>
+                                    <Button Content="删除"
+                                            Width="40"
+                                            Height="26"
+                                            FontSize="11"
+                                            Style="{StaticResource DangerButton}"
+                                            Command="{Binding DataContext.DeleteRecordCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                            CommandParameter="{Binding}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        
+        <!-- 加载中状态 -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource ThemeSurfaceBrush}"
+                CornerRadius="8"
+                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <TextBlock Text="加载中..."
+                       FontSize="13"
+                       Foreground="{DynamicResource ThemeTextMutedBrush}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Border>
+        
+        <!-- 空状态 -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource ThemeSurfaceBrush}"
+                CornerRadius="8"
+                Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" 
+                        VerticalAlignment="Center">
+                <TextBlock Text="📊" 
+                           FontSize="32"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,10"/>
+                <TextBlock Text="暂无记录"
+                           FontSize="14"
+                           Foreground="{DynamicResource ThemeTextMutedBrush}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="点击【开始记录】按钮开始采集数据"
+                           FontSize="12"
+                           Foreground="{DynamicResource ThemeTextMutedBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

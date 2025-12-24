@@ -4,10 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SixForce.Views"
+             xmlns:converters="clr-namespace:SixForce.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="600">
     
     <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
         <!-- 切换按钮样式 -->
         <Style x:Key="ToggleTabButton" TargetType="RadioButton">
             <Setter Property="Background" Value="Transparent"/>
@@ -45,128 +49,269 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <!-- 记录按钮样式 -->
+        <Style x:Key="RecordButton" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource ThemeSuccessBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse x:Name="indicator" 
+                                         Width="8" Height="8" 
+                                         Fill="White" 
+                                         Margin="0,0,6,0"
+                                         VerticalAlignment="Center"/>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- 停止记录按钮样式 -->
+        <Style x:Key="StopRecordButton" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource ThemeDangerBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <StackPanel Orientation="Horizontal">
+                                <Rectangle Width="8" Height="8" 
+                                           Fill="White" 
+                                           Margin="0,0,6,0"
+                                           VerticalAlignment="Center"/>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     
     <Grid Margin="4">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- 主内容区域 -->
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- 顶部：标题和切换按钮 -->
-        <Grid Grid.Row="0" Margin="0,0,0,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            
-            <!-- 标题 -->
-            <StackPanel Grid.Column="0">
-                <TextBlock Text="{Binding ChartTitle}" 
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
-                <TextBlock Text="实时传感器数据监控" 
-                           FontSize="11"
-                           Foreground="{DynamicResource ThemeTextMutedBrush}"
-                           Margin="0,2,0,0"/>
-            </StackPanel>
-
-            <!-- 切换按钮组 -->
-            <Border Grid.Column="1" 
-                    Background="{DynamicResource ThemeSurfaceBrush}" 
-                    CornerRadius="6" 
-                    Padding="3">
-                <StackPanel Orientation="Horizontal">
-                    <RadioButton x:Name="VoltageTab"
-                                 Content="电压(mV)" 
-                                 Style="{StaticResource ToggleTabButton}"
-                                 IsChecked="{Binding IsVoltageMode}"
-                                 Command="{Binding SwitchToVoltageCommand}"
-                                 GroupName="CurveMode"/>
-                    <RadioButton x:Name="ForceTab"
-                                 Content="力值(N)" 
-                                 Style="{StaticResource ToggleTabButton}"
-                                 IsChecked="{Binding IsForceMode}"
-                                 Command="{Binding SwitchToForceCommand}"
-                                 GroupName="CurveMode"
-                                 Margin="3,0,0,0"/>
+            <!-- 顶部：标题、记录控制和切换按钮 -->
+            <Grid Grid.Row="0" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- 标题 -->
+                <StackPanel Grid.Column="0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding ChartTitle}" 
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                        <!-- 记录状态指示器 -->
+                        <Border Margin="10,0,0,0"
+                                Background="{DynamicResource ThemeDangerLightBrush}"
+                                CornerRadius="4"
+                                Padding="8,2"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding IsRecording, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="6" Height="6" 
+                                         Fill="{DynamicResource ThemeDangerBrush}"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="记录中" 
+                                           FontSize="11"
+                                           Foreground="{DynamicResource ThemeDangerBrush}"
+                                           Margin="4,0,0,0"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="实时传感器数据监控" 
+                               FontSize="11"
+                               Foreground="{DynamicResource ThemeTextMutedBrush}"
+                               Margin="0,2,0,0"/>
                 </StackPanel>
+
+                <!-- 记录控制按钮 -->
+                <StackPanel Grid.Column="1" 
+                            Orientation="Horizontal" 
+                            Margin="0,0,12,0">
+                    <!-- 开始记录按钮 -->
+                    <Button Content="开始记录"
+                            Style="{StaticResource RecordButton}"
+                            Command="{Binding StartRecordingCommand}"
+                            Visibility="{Binding CanStartRecording, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    
+                    <!-- 停止记录按钮 -->
+                    <Button Content="停止记录"
+                            Style="{StaticResource StopRecordButton}"
+                            Command="{Binding StopRecordingCommand}"
+                            Visibility="{Binding IsRecording, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    
+                    <!-- 历史记录按钮 -->
+                    <Button Content="📊 历史"
+                            Width="60"
+                            Height="28"
+                            FontSize="11"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding ToggleHistoryPanelCommand}"
+                            Margin="8,0,0,0"/>
+                </StackPanel>
+
+                <!-- 切换按钮组 -->
+                <Border Grid.Column="2" 
+                        Background="{DynamicResource ThemeSurfaceBrush}" 
+                        CornerRadius="6" 
+                        Padding="3">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="VoltageTab"
+                                     Content="电压(mV)" 
+                                     Style="{StaticResource ToggleTabButton}"
+                                     IsChecked="{Binding IsVoltageMode}"
+                                     Command="{Binding SwitchToVoltageCommand}"
+                                     GroupName="CurveMode"/>
+                        <RadioButton x:Name="ForceTab"
+                                     Content="力值(N)" 
+                                     Style="{StaticResource ToggleTabButton}"
+                                     IsChecked="{Binding IsForceMode}"
+                                     Command="{Binding SwitchToForceCommand}"
+                                     GroupName="CurveMode"
+                                     Margin="3,0,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- 曲线画布区域 -->
+            <Border Grid.Row="1" 
+                    Background="{DynamicResource ThemeSurfaceBrush}"
+                    CornerRadius="8"
+                    BorderBrush="{DynamicResource ThemeBorderBrush}"
+                    BorderThickness="1"
+                    ClipToBounds="True">
+                <Grid>
+                    <!-- 网格背景 -->
+                    <Canvas ClipToBounds="True">
+                        <Canvas.Background>
+                            <DrawingBrush TileMode="Tile" 
+                                          Viewport="0,0,50,50" 
+                                          ViewportUnits="Absolute">
+                                <DrawingBrush.Drawing>
+                                    <GeometryDrawing>
+                                        <GeometryDrawing.Geometry>
+                                            <GeometryGroup>
+                                                <LineGeometry StartPoint="0,0" EndPoint="50,0"/>
+                                                <LineGeometry StartPoint="0,0" EndPoint="0,50"/>
+                                            </GeometryGroup>
+                                        </GeometryDrawing.Geometry>
+                                        <GeometryDrawing.Pen>
+                                            <Pen Brush="{DynamicResource ThemeGridLineBrush}" Thickness="0.5"/>
+                                        </GeometryDrawing.Pen>
+                                    </GeometryDrawing>
+                                </DrawingBrush.Drawing>
+                            </DrawingBrush>
+                        </Canvas.Background>
+                    </Canvas>
+                    
+                    <!-- 数据曲线画布 -->
+                    <Canvas x:Name="CurveCanvas" 
+                            Background="Transparent"
+                            ClipToBounds="True"
+                            SizeChanged="CurveCanvas_SizeChanged"/>
+                </Grid>
+            </Border>
+
+            <!-- 底部图例 -->
+            <Border Grid.Row="2" 
+                    Margin="0,10,0,0"
+                    Background="{DynamicResource ThemeSurfaceBrush}"
+                    CornerRadius="6"
+                    Padding="10,8">
+                <WrapPanel HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                        <Ellipse Width="8" Height="8" Fill="#FC8181"/>
+                        <TextBlock Text="Fx" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                        <Ellipse Width="8" Height="8" Fill="#68D391"/>
+                        <TextBlock Text="Fy" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                        <Ellipse Width="8" Height="8" Fill="#63B3ED"/>
+                        <TextBlock Text="Fz" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                        <Ellipse Width="8" Height="8" Fill="#F6AD55"/>
+                        <TextBlock Text="Mx" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+                        <Ellipse Width="8" Height="8" Fill="#B794F4"/>
+                        <TextBlock Text="My" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Fill="#4FD1C5"/>
+                        <TextBlock Text="Mz" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </WrapPanel>
             </Border>
         </Grid>
-
-        <!-- 曲线画布区域 -->
-        <Border Grid.Row="1" 
-                Background="{DynamicResource ThemeSurfaceBrush}"
+        
+        <!-- 历史记录侧边栏 -->
+        <Border Grid.Column="1"
+                Width="320"
+                Background="{DynamicResource ThemeCardBrush}"
                 CornerRadius="8"
                 BorderBrush="{DynamicResource ThemeBorderBrush}"
                 BorderThickness="1"
-                ClipToBounds="True">
-            <Grid>
-                <!-- 网格背景 -->
-                <Canvas ClipToBounds="True">
-                    <Canvas.Background>
-                        <DrawingBrush TileMode="Tile" 
-                                      Viewport="0,0,50,50" 
-                                      ViewportUnits="Absolute">
-                            <DrawingBrush.Drawing>
-                                <GeometryDrawing>
-                                    <GeometryDrawing.Geometry>
-                                        <GeometryGroup>
-                                            <LineGeometry StartPoint="0,0" EndPoint="50,0"/>
-                                            <LineGeometry StartPoint="0,0" EndPoint="0,50"/>
-                                        </GeometryGroup>
-                                    </GeometryDrawing.Geometry>
-                                    <GeometryDrawing.Pen>
-                                        <Pen Brush="{DynamicResource ThemeGridLineBrush}" Thickness="0.5"/>
-                                    </GeometryDrawing.Pen>
-                                </GeometryDrawing>
-                            </DrawingBrush.Drawing>
-                        </DrawingBrush>
-                    </Canvas.Background>
-                </Canvas>
-                
-                <!-- 数据曲线画布 -->
-                <Canvas x:Name="CurveCanvas" 
-                        Background="Transparent"
-                        ClipToBounds="True"
-                        SizeChanged="CurveCanvas_SizeChanged"/>
-            </Grid>
-        </Border>
-
-        <!-- 底部图例 -->
-        <Border Grid.Row="2" 
-                Margin="0,10,0,0"
-                Background="{DynamicResource ThemeSurfaceBrush}"
-                CornerRadius="6"
-                Padding="10,8">
-            <WrapPanel HorizontalAlignment="Center">
-                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                    <Ellipse Width="8" Height="8" Fill="#FC8181"/>
-                    <TextBlock Text="Fx" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                    <Ellipse Width="8" Height="8" Fill="#68D391"/>
-                    <TextBlock Text="Fy" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                    <Ellipse Width="8" Height="8" Fill="#63B3ED"/>
-                    <TextBlock Text="Fz" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                    <Ellipse Width="8" Height="8" Fill="#F6AD55"/>
-                    <TextBlock Text="Mx" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                    <Ellipse Width="8" Height="8" Fill="#B794F4"/>
-                    <TextBlock Text="My" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Ellipse Width="8" Height="8" Fill="#4FD1C5"/>
-                    <TextBlock Text="Mz" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-            </WrapPanel>
+                Margin="10,0,0,0"
+                Padding="12"
+                Visibility="{Binding IsHistoryPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+            <local:RecordHistoryView DataContext="{Binding RecordHistoryViewModel}"/>
         </Border>
     </Grid>
 </UserControl>

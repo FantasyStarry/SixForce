@@ -19,6 +19,7 @@ namespace SixForce
             
             services.AddSingleton<IModbusService, ModbusRTUService>();
             services.AddSingleton<IMessageService, MessageService>();
+            services.AddSingleton<IDataRecordService, DataRecordService>();
             
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<LeftPanelViewModel>();
