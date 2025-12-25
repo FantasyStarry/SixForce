@@ -6,15 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="220">
     
-    <UserControl.Resources>
-        <Style x:Key="FormLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondaryBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
-        </Style>
-    </UserControl.Resources>
-    
-    <Grid Margin="4">
+    <Grid Margin="12,8,12,12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -26,105 +18,141 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- 分组标题：连接配置 -->
+        <TextBlock Grid.Row="0" Text="连接配置" Style="{StaticResource SectionTitle}" Margin="0,4,0,0"/>
+
         <!-- 串口选择 -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+        <StackPanel Grid.Row="1" Margin="0,0,0,14">
             <TextBlock Text="串口" Style="{StaticResource FormLabel}"/>
-            <ComboBox Height="32"
-                      FontSize="13"
+            <ComboBox Height="36"
                       ItemsSource="{Binding SerialPorts}"
                       SelectedItem="{Binding SelectedSerialPort}"/>
         </StackPanel>
 
         <!-- 波特率 -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,10">
+        <StackPanel Grid.Row="2" Margin="0,0,0,14">
             <TextBlock Text="波特率" Style="{StaticResource FormLabel}"/>
-            <ComboBox Height="32"
-                      FontSize="13"
+            <ComboBox Height="36"
                       ItemsSource="{Binding BaudRates}"
                       SelectedItem="{Binding SelectedBaudRate}"/>
         </StackPanel>
 
         <!-- 机码 -->
-        <StackPanel Grid.Row="2" Margin="0,0,0,10">
+        <StackPanel Grid.Row="3" Margin="0,0,0,14">
             <TextBlock Text="机码" Style="{StaticResource FormLabel}"/>
-            <TextBox Height="32"
-                     FontSize="13"
-                     TextAlignment="Center"
-                     VerticalContentAlignment="Center"
-                     Text="{Binding MachineCode}"/>
+            <TextBox Height="36" TextAlignment="Center" VerticalContentAlignment="Center"
+                     Text="{Binding MachineCode, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
 
         <!-- 产品编号 -->
-        <StackPanel Grid.Row="3" Margin="0,0,0,10">
+        <StackPanel Grid.Row="4" Margin="0,0,0,14">
             <TextBlock Text="产品编号" Style="{StaticResource FormLabel}"/>
-            <TextBox Height="32"
-                     FontSize="13"
-                     TextAlignment="Center"
-                     VerticalContentAlignment="Center"
-                     Text="{Binding ProductId}"/>
+            <TextBox Height="36" TextAlignment="Center" VerticalContentAlignment="Center"
+                     Text="{Binding ProductId, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
 
         <!-- 标定通道 -->
-        <StackPanel Grid.Row="4" Margin="0,0,0,10">
+        <StackPanel Grid.Row="5" Margin="0,0,0,18">
             <TextBlock Text="标定通道" Style="{StaticResource FormLabel}"/>
-            <ComboBox Height="32"
-                      FontSize="13"
+            <ComboBox Height="36"
                       ItemsSource="{Binding Channels}"
                       SelectedItem="{Binding SelectedChannel}"/>
         </StackPanel>
 
-        <!-- 连接状态 -->
-        <Border Grid.Row="5" 
+        <!-- 连接状态指示器 -->
+        <Border Grid.Row="6" 
                 Background="{DynamicResource ThemeSurfaceBrush}" 
-                CornerRadius="6" 
-                Padding="8,6"
-                Margin="0,0,0,10">
-            <StackPanel Orientation="Horizontal">
-                <Ellipse Width="8" Height="8" VerticalAlignment="Center">
-                    <Ellipse.Style>
-                        <Style TargetType="Ellipse">
-                            <Setter Property="Fill" Value="{DynamicResource ThemeTextMutedBrush}"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsConnected}" Value="True">
-                                    <Setter Property="Fill" Value="{DynamicResource ThemeSuccessBrush}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Ellipse.Style>
-                </Ellipse>
-                <TextBlock FontSize="12" 
-                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
-                           VerticalAlignment="Center"
-                           Margin="6,0,0,0">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Text" Value="未连接"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsConnected}" Value="True">
-                                    <Setter Property="Text" Value="已连接"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-            </StackPanel>
+                CornerRadius="10" 
+                Padding="14,12"
+                VerticalAlignment="Top"
+                Margin="0,0,0,18">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- 状态圆点（带呼吸灯效果） -->
+                <Grid Grid.Column="0" Width="32" Height="32" Margin="0,0,12,0">
+                    <!-- 外圈光晕 -->
+                    <Ellipse x:Name="StatusGlow" Width="32" Height="32" Opacity="0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="{DynamicResource ThemeSuccessBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard RepeatBehavior="Forever">
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                     From="0.5" To="0" Duration="0:0:1.5"
+                                                                     AutoReverse="True"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <!-- 内圈实心 -->
+                    <Ellipse Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="{DynamicResource ThemeTextMutedBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                        <Setter Property="Fill" Value="{DynamicResource ThemeSuccessBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                </Grid>
+                
+                <!-- 状态文字 -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock FontSize="13" FontWeight="Medium"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="未连接"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                        <Setter Property="Text" Value="已连接"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock FontSize="11" Foreground="{DynamicResource ThemeTextMutedBrush}" Margin="0,2,0,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="请配置串口参数"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                        <Setter Property="Text" Value="数据采集中..."/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
         </Border>
-
-        <!-- 占位 -->
-        <Grid Grid.Row="6"/>
 
         <!-- 操作按钮 -->
         <StackPanel Grid.Row="7">
             <Button Content="连接串口" 
-                    Height="36"
-                    FontSize="13"
+                    Height="42"
+                    FontSize="14"
                     Style="{StaticResource SuccessButton}"
                     Command="{Binding ConnectCommand}"
                     IsEnabled="{Binding CanConnect}"
-                    Margin="0,0,0,8"/>
+                    Margin="0,0,0,10"/>
             <Button Content="断开连接" 
-                    Height="36"
-                    FontSize="13"
+                    Height="42"
+                    FontSize="14"
                     Style="{StaticResource DangerButton}"
                     Command="{Binding DisconnectCommand}"
                     IsEnabled="{Binding CanDisconnect}"/>

@@ -6,170 +6,241 @@
              xmlns:views="clr-namespace:SixForce.Views"
              xmlns:converters="clr-namespace:SixForce.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="320">
+             d:DesignHeight="650" d:DesignWidth="360">
     
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
     
-    <Grid Margin="4">
+    <Grid Margin="8,8,8,8">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" MinHeight="280"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
-        <!-- 数据表格区域 -->
+        <!-- ==================== 实时数据展示区域 ==================== -->
         <Border Grid.Row="0"
-                Background="{DynamicResource ThemeSurfaceBrush}"
-                CornerRadius="8"
+                Background="{DynamicResource ThemeCardBrush}"
+                CornerRadius="10"
                 BorderBrush="{DynamicResource ThemeBorderBrush}"
                 BorderThickness="1"
                 Margin="0,0,0,12">
-            <DataGrid Style="{StaticResource DataGridStyle}"
-                      ItemsSource="{Binding CalibrationData}"
-                      AutoGenerateColumns="False"
-                      IsReadOnly="True"
-                      HeadersVisibility="Column"
-                      SelectionUnit="Cell"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Auto"
-                      FontSize="14"
-                      RowHeight="38"
-                      ColumnHeaderHeight="36">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="参数" 
-                                        Binding="{Binding Channel}" 
-                                        Width="60">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="FontSize" Value="14"/>
-                                <Setter Property="FontWeight" Value="Medium"/>
-                                <Setter Property="HorizontalAlignment" Value="Center"/>
-                                <Setter Property="VerticalAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="电压(mV)" 
-                                        Binding="{Binding MvValue}" 
-                                        Width="*">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="FontSize" Value="14"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
-                                <Setter Property="HorizontalAlignment" Value="Center"/>
-                                <Setter Property="VerticalAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <DataGridTextColumn Header="力值(N)" 
-                                        Binding="{Binding ForceValue}" 
-                                        Width="*">
-                        <DataGridTextColumn.ElementStyle>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="FontSize" Value="14"/>
-                                <Setter Property="FontWeight" Value="Bold"/>
-                                <Setter Property="Foreground" Value="{DynamicResource ThemeSuccessBrush}"/>
-                                <Setter Property="HorizontalAlignment" Value="Center"/>
-                                <Setter Property="VerticalAlignment" Value="Center"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- 标题栏 -->
+                <Border Grid.Row="0" Background="{DynamicResource ThemeSurfaceBrush}"
+                        CornerRadius="10,10,0,0" Padding="14,12"
+                        BorderBrush="{DynamicResource ThemeBorderBrush}"
+                        BorderThickness="0,0,0,1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock Text="📊" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="实时数据" FontSize="15" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        
+                        <TextBlock Grid.Column="1" Text="mV" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource ThemePrimaryBrush}"
+                                   TextAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="N" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource ThemeSuccessBrush}"
+                                   TextAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+                
+                <!-- 6通道数据 -->
+                <StackPanel Grid.Row="1" Margin="10,10,10,10">
+                    <!-- Fx -->
+                    <Border Background="{DynamicResource ThemeSurfaceBrush}" CornerRadius="8" 
+                            Padding="14,12" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="12" Height="12" Fill="#F87171" Margin="0,0,12,0"/>
+                                <TextBlock Text="Fx" FontSize="18" FontWeight="Bold"
+                                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding CalibrationData[0].MvValue}" 
+                                       FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemePrimaryBrush}" 
+                                       TextAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding CalibrationData[0].ForceValue}" 
+                                       FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemeSuccessBrush}" 
+                                       TextAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Fy -->
+                    <Border Background="{DynamicResource ThemeSurfaceBrush}" CornerRadius="8" 
+                            Padding="14,12" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="12" Height="12" Fill="#4ADE80" Margin="0,0,12,0"/>
+                                <TextBlock Text="Fy" FontSize="18" FontWeight="Bold"
+                                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding CalibrationData[1].MvValue}" 
+                                       FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemePrimaryBrush}" 
+                                       TextAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding CalibrationData[1].ForceValue}" 
+                                       FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemeSuccessBrush}" 
+                                       TextAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Fz -->
+                    <Border Background="{DynamicResource ThemeSurfaceBrush}" CornerRadius="8" 
+                            Padding="14,12" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="12" Height="12" Fill="#60A5FA" Margin="0,0,12,0"/>
+                                <TextBlock Text="Fz" FontSize="18" FontWeight="Bold"
+                                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding CalibrationData[2].MvValue}" 
+                                       FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemePrimaryBrush}" 
+                                       TextAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding CalibrationData[2].ForceValue}" 
+                                       FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemeSuccessBrush}" 
+                                       TextAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Mx -->
+                    <Border Background="{DynamicResource ThemeSurfaceBrush}" CornerRadius="8" 
+                            Padding="14,12" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="12" Height="12" Fill="#FB923C" Margin="0,0,12,0"/>
+                                <TextBlock Text="Mx" FontSize="18" FontWeight="Bold"
+                                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding CalibrationData[3].MvValue}" 
+                                       FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemePrimaryBrush}" 
+                                       TextAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding CalibrationData[3].ForceValue}" 
+                                       FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemeSuccessBrush}" 
+                                       TextAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- My -->
+                    <Border Background="{DynamicResource ThemeSurfaceBrush}" CornerRadius="8" 
+                            Padding="14,12" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="12" Height="12" Fill="#A78BFA" Margin="0,0,12,0"/>
+                                <TextBlock Text="My" FontSize="18" FontWeight="Bold"
+                                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding CalibrationData[4].MvValue}" 
+                                       FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemePrimaryBrush}" 
+                                       TextAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding CalibrationData[4].ForceValue}" 
+                                       FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemeSuccessBrush}" 
+                                       TextAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Mz -->
+                    <Border Background="{DynamicResource ThemeSurfaceBrush}" CornerRadius="8" 
+                            Padding="14,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="12" Height="12" Fill="#2DD4BF" Margin="0,0,12,0"/>
+                                <TextBlock Text="Mz" FontSize="18" FontWeight="Bold"
+                                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Text="{Binding CalibrationData[5].MvValue}" 
+                                       FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemePrimaryBrush}" 
+                                       TextAlignment="Right" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{Binding CalibrationData[5].ForceValue}" 
+                                       FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource ThemeSuccessBrush}" 
+                                       TextAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Grid>
         </Border>
 
-        <!-- 参数编辑区域 -->
+        <!-- ==================== 底部操作区域 ==================== -->
         <Border Grid.Row="1"
                 Background="{DynamicResource ThemeSurfaceBrush}"
-                CornerRadius="8"
-                Margin="0,0,0,12"
-                Padding="10">
-            <StackPanel>
-                <TextBlock Text="参数设置" 
-                           FontSize="12"
-                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
-                           Margin="0,0,0,8"/>
+                CornerRadius="10"
+                Padding="14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
                 
-                <Grid Margin="0,0,0,10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                        <TextBlock Text="当前参数" 
-                                   FontSize="11"
-                                   Foreground="{DynamicResource ThemeTextMutedBrush}"
-                                   Margin="0,0,0,4"/>
-                        <TextBox Text="485通讯波特率" 
-                                 Height="32"
-                                 IsReadOnly="True"
-                                 FontSize="12"/>
-                    </StackPanel>
-                    
-                    <Button Grid.Column="1"
-                            Content="修改"
-                            Width="50"
-                            Height="32"
-                            FontSize="12"
-                            VerticalAlignment="Bottom"
-                            Style="{StaticResource SecondaryButton}"/>
-                </Grid>
-
-                <!-- 操作按钮 -->
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="8"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <Button Grid.Column="0"
-                            Content="清零"
-                            Height="34"
-                            FontSize="13"
-                            Style="{StaticResource DangerButton}"
-                            Command="{Binding ShowClearChannelDialogCommand}"/>
-                    <Button Grid.Column="2"
-                            Content="校准"
-                            Height="34"
-                            FontSize="13"
-                            Command="{Binding SaveCalibrationDataCommand}"/>
-                </Grid>
-            </StackPanel>
-        </Border>
-
-        <!-- 高级功能区域 -->
-        <Border Grid.Row="2"
-                Background="{DynamicResource ThemeCardBrush}"
-                CornerRadius="8"
-                BorderBrush="{DynamicResource ThemeBorderBrush}"
-                BorderThickness="1"
-                Padding="10">
-            <StackPanel>
-                <TextBlock Text="高级功能" 
-                           FontSize="12"
-                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
-                           Margin="0,0,0,8"/>
-                
-                <Button Content="解耦系数编辑"
-                        Height="36"
-                        FontSize="13"
+                <Button Grid.Column="0" Content="清零" Height="42" FontSize="14"
+                        Style="{StaticResource DangerButton}"
+                        Command="{Binding ShowClearChannelDialogCommand}"/>
+                <Button Grid.Column="2" Content="校准" Height="42" FontSize="14"
+                        Command="{Binding SaveCalibrationDataCommand}"/>
+                <Button Grid.Column="4" Content="解耦编辑" Height="42" FontSize="14"
                         Style="{StaticResource OutlineButton}"
                         Command="{Binding OpenDecouplingMatrixCommand}"/>
-                
-                <TextBlock Text="更多功能开发中..." 
-                           FontSize="11"
-                           Foreground="{DynamicResource ThemeTextMutedBrush}"
-                           HorizontalAlignment="Center"
-                           Margin="0,8,0,0"/>
-            </StackPanel>
+            </Grid>
         </Border>
 
         <!-- 弹窗遮罩层 -->
-        <Grid Grid.RowSpan="3"
+        <Grid Grid.RowSpan="2"
               Visibility="{Binding IsClearChannelDialogOpen, Converter={StaticResource BoolToVisibilityConverter}}">
             <Rectangle Fill="#80000000"/>
             <Popup IsOpen="{Binding IsClearChannelDialogOpen}" 

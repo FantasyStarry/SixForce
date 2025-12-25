@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="查看记录" 
-        Height="600" Width="900"
-        MinHeight="400" MinWidth="600"
+        Height="640" Width="960"
+        MinHeight="480" MinWidth="720"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource ThemeBackgroundBrush}">
     
@@ -17,15 +17,13 @@
             <Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondaryBrush}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Padding" Value="12,6"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="border" 
-                                Background="{TemplateBinding Background}" 
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -34,7 +32,7 @@
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="{DynamicResource ThemeSurfaceBrush}"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource ThemeHoverBrush}"/>
                             </Trigger>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
@@ -48,9 +46,17 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 图例项样式 -->
+        <Style x:Key="LegendItem" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ThemeSurfaceBrush}"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
     </Window.Resources>
     
-    <Grid Margin="16">
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -59,93 +65,68 @@
         </Grid.RowDefinitions>
         
         <!-- 标题和信息 -->
-        <Grid Grid.Row="0" Margin="0,0,0,12">
+        <Grid Grid.Row="0" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             
             <StackPanel Grid.Column="0">
-                <TextBlock x:Name="RecordNameText"
-                           FontSize="18"
-                           FontWeight="SemiBold"
+                <TextBlock x:Name="RecordNameText" FontSize="18" FontWeight="SemiBold"
                            Foreground="{DynamicResource ThemeTextPrimaryBrush}"/>
-                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                    <TextBlock x:Name="RecordTimeText"
-                               FontSize="12"
+                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                    <TextBlock x:Name="RecordTimeText" FontSize="12"
                                Foreground="{DynamicResource ThemeTextMutedBrush}"/>
-                    <TextBlock Text=" · " 
-                               FontSize="12"
+                    <TextBlock Text=" · " FontSize="12" Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                    <TextBlock x:Name="RecordDurationText" FontSize="12"
                                Foreground="{DynamicResource ThemeTextMutedBrush}"/>
-                    <TextBlock x:Name="RecordDurationText"
-                               FontSize="12"
-                               Foreground="{DynamicResource ThemeTextMutedBrush}"/>
-                    <TextBlock Text=" · " 
-                               FontSize="12"
-                               Foreground="{DynamicResource ThemeTextMutedBrush}"/>
-                    <TextBlock x:Name="RecordPointsText"
-                               FontSize="12"
+                    <TextBlock Text=" · " FontSize="12" Foreground="{DynamicResource ThemeTextMutedBrush}"/>
+                    <TextBlock x:Name="RecordPointsText" FontSize="12"
                                Foreground="{DynamicResource ThemeTextMutedBrush}"/>
                 </StackPanel>
             </StackPanel>
             
-            <!-- 切换按钮组 -->
-            <Border Grid.Column="1" 
-                    Background="{DynamicResource ThemeSurfaceBrush}" 
-                    CornerRadius="6" 
-                    Padding="3">
+            <!-- 模式切换 -->
+            <Border Grid.Column="1" Background="{DynamicResource ThemeSurfaceBrush}" 
+                    CornerRadius="6" Padding="3">
                 <StackPanel Orientation="Horizontal">
-                    <RadioButton x:Name="VoltageTab"
-                                 Content="电压(mV)" 
+                    <RadioButton x:Name="VoltageTab" Content="电压(mV)" 
                                  Style="{StaticResource ToggleTabButton}"
-                                 IsChecked="True"
-                                 Checked="VoltageTab_Checked"
-                                 GroupName="CurveMode"/>
-                    <RadioButton x:Name="ForceTab"
-                                 Content="力值(N)" 
+                                 IsChecked="True" Checked="VoltageTab_Checked" GroupName="CurveMode"/>
+                    <RadioButton x:Name="ForceTab" Content="力值(N)" 
                                  Style="{StaticResource ToggleTabButton}"
-                                 Checked="ForceTab_Checked"
-                                 GroupName="CurveMode"
-                                 Margin="3,0,0,0"/>
+                                 Checked="ForceTab_Checked" GroupName="CurveMode" Margin="3,0,0,0"/>
                 </StackPanel>
             </Border>
         </Grid>
         
         <!-- 注释区域 -->
-        <Border x:Name="CommentBorder"
-                Grid.Row="1"
+        <Border x:Name="CommentBorder" Grid.Row="1"
                 Background="{DynamicResource ThemePrimaryLightBrush}"
-                CornerRadius="6"
-                Padding="12,8"
-                Margin="0,0,0,12"
-                Visibility="Collapsed">
-            <StackPanel>
-                <TextBlock Text="注释"
-                           FontSize="11"
-                           FontWeight="SemiBold"
-                           Foreground="{DynamicResource ThemePrimaryBrush}"
-                           Margin="0,0,0,4"/>
-                <TextBlock x:Name="CommentText"
-                           FontSize="13"
-                           Foreground="{DynamicResource ThemeTextPrimaryBrush}"
-                           TextWrapping="Wrap"/>
-            </StackPanel>
+                CornerRadius="8" Padding="14,10" Margin="0,0,0,16" Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="📝" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Top"/>
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="注释" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{DynamicResource ThemePrimaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock x:Name="CommentText" FontSize="13"
+                               Foreground="{DynamicResource ThemeTextPrimaryBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
         </Border>
         
         <!-- 曲线画布区域 -->
-        <Border Grid.Row="2" 
-                Background="{DynamicResource ThemeSurfaceBrush}"
-                CornerRadius="8"
-                BorderBrush="{DynamicResource ThemeBorderBrush}"
-                BorderThickness="1"
-                ClipToBounds="True">
+        <Border Grid.Row="2" Background="{DynamicResource ThemeSurfaceBrush}"
+                CornerRadius="8" BorderBrush="{DynamicResource ThemeBorderBrush}"
+                BorderThickness="1" ClipToBounds="True">
             <Grid>
-                <!-- 网格背景 -->
                 <Canvas ClipToBounds="True">
                     <Canvas.Background>
-                        <DrawingBrush TileMode="Tile" 
-                                      Viewport="0,0,50,50" 
-                                      ViewportUnits="Absolute">
+                        <DrawingBrush TileMode="Tile" Viewport="0,0,50,50" ViewportUnits="Absolute">
                             <DrawingBrush.Drawing>
                                 <GeometryDrawing>
                                     <GeometryDrawing.Geometry>
@@ -162,46 +143,58 @@
                         </DrawingBrush>
                     </Canvas.Background>
                 </Canvas>
-                
-                <!-- 数据曲线画布 -->
-                <Canvas x:Name="CurveCanvas" 
-                        Background="Transparent"
-                        ClipToBounds="True"
+                <Canvas x:Name="CurveCanvas" Background="Transparent" ClipToBounds="True"
                         SizeChanged="CurveCanvas_SizeChanged"/>
             </Grid>
         </Border>
         
         <!-- 底部图例 -->
-        <Border Grid.Row="3" 
-                Margin="0,12,0,0"
+        <Border Grid.Row="3" Margin="0,12,0,0"
                 Background="{DynamicResource ThemeSurfaceBrush}"
-                CornerRadius="6"
-                Padding="10,8">
+                CornerRadius="6" Padding="12,8">
             <WrapPanel HorizontalAlignment="Center">
-                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                    <Ellipse Width="8" Height="8" Fill="#FC8181"/>
-                    <TextBlock Text="Fx" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                    <Ellipse Width="8" Height="8" Fill="#68D391"/>
-                    <TextBlock Text="Fy" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                    <Ellipse Width="8" Height="8" Fill="#63B3ED"/>
-                    <TextBlock Text="Fz" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                    <Ellipse Width="8" Height="8" Fill="#F6AD55"/>
-                    <TextBlock Text="Mx" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
-                    <Ellipse Width="8" Height="8" Fill="#B794F4"/>
-                    <TextBlock Text="My" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Ellipse Width="8" Height="8" Fill="#4FD1C5"/>
-                    <TextBlock Text="Mz" FontSize="12" Foreground="{DynamicResource ThemeTextPrimaryBrush}" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
+                <Border Style="{StaticResource LegendItem}">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Fill="#F87171"/>
+                        <TextBlock Text="Fx" FontSize="12" Margin="6,0,0,0"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource LegendItem}">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Fill="#4ADE80"/>
+                        <TextBlock Text="Fy" FontSize="12" Margin="6,0,0,0"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource LegendItem}">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Fill="#60A5FA"/>
+                        <TextBlock Text="Fz" FontSize="12" Margin="6,0,0,0"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource LegendItem}">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Fill="#FB923C"/>
+                        <TextBlock Text="Mx" FontSize="12" Margin="6,0,0,0"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource LegendItem}">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Fill="#A78BFA"/>
+                        <TextBlock Text="My" FontSize="12" Margin="6,0,0,0"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource LegendItem}" Margin="0">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Fill="#2DD4BF"/>
+                        <TextBlock Text="Mz" FontSize="12" Margin="6,0,0,0"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
             </WrapPanel>
         </Border>
     </Grid>

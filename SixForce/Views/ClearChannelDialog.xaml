@@ -3,37 +3,121 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SixForce.Views"
              mc:Ignorable="d" 
-              Height="180" Width="280"
-             Background="White"
-             d:DesignHeight="180" d:DesignWidth="280">
-    <Border CornerRadius="10" BorderBrush="#DDD" BorderThickness="1" Padding="15" Background="White">
-        <Grid >
+             d:DesignHeight="240" d:DesignWidth="360">
+    
+    <Border CornerRadius="12" 
+            Background="{DynamicResource ThemeCardBrush}"
+            BorderBrush="{DynamicResource ThemeBorderBrush}" 
+            BorderThickness="1"
+            Width="360">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="32" ShadowDepth="8" Opacity="0.25" Direction="270"
+                              Color="{DynamicResource ThemeShadowColor}"/>
+        </Border.Effect>
+        
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock Text="请选择要清零的通道" 
-                       FontSize="16" FontWeight="Medium"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,15"/>
-
-            <ComboBox Grid.Row="1" 
-                      Width="200" Height="32"
-                      ItemsSource="{Binding ChannelOptions}" 
-                      SelectedItem="{Binding SelectedChannel, Mode=TwoWay}"
-                      HorizontalAlignment="Center"/>
-
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0" >
-                <Button Content="确定" Width="80" Height="32" 
-                        Background="#4CAF50"
-                        Command="{Binding ConfirmClearChannelCommand}"/>
-                <Button Content="取消" Width="80" Height="32" 
-                        Background="#9E9E9E"
-                        Command="{Binding CancelClearChannelCommand}"/>
+            
+            <!-- 标题栏 -->
+            <Border Grid.Row="0" 
+                    Background="{DynamicResource ThemeSurfaceBrush}"
+                    CornerRadius="12,12,0,0"
+                    Padding="20,16">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="32" Height="32" CornerRadius="8"
+                                Background="{DynamicResource ThemeDangerLightBrush}">
+                            <TextBlock Text="⚠" FontSize="16" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource ThemeDangerBrush}"/>
+                        </Border>
+                        <TextBlock Text="通道清零" 
+                                   FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource ThemeTextPrimaryBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="12,0,0,0"/>
+                    </StackPanel>
+                    <TextBlock Text="此操作将清除选定通道的数据，请谨慎操作" 
+                               FontSize="12"
+                               Foreground="{DynamicResource ThemeTextMutedBrush}"
+                               Margin="0,8,0,0"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- 内容区域 -->
+            <StackPanel Grid.Row="1" Margin="20,20,20,16">
+                <TextBlock Text="选择要清零的通道" 
+                           FontSize="13"
+                           Foreground="{DynamicResource ThemeTextSecondaryBrush}"
+                           Margin="0,0,0,10"/>
+                
+                <ComboBox Height="40"
+                          FontSize="14"
+                          ItemsSource="{Binding ChannelOptions}" 
+                          SelectedItem="{Binding SelectedChannel, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{Binding}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding}" Value="7">
+                                                <Setter Property="Text" Value="全部通道"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding}" Value="1">
+                                                <Setter Property="Text" Value="通道 1 (Fx)"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding}" Value="2">
+                                                <Setter Property="Text" Value="通道 2 (Fy)"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding}" Value="3">
+                                                <Setter Property="Text" Value="通道 3 (Fz)"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding}" Value="4">
+                                                <Setter Property="Text" Value="通道 4 (Mx)"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding}" Value="5">
+                                                <Setter Property="Text" Value="通道 5 (My)"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding}" Value="6">
+                                                <Setter Property="Text" Value="通道 6 (Mz)"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
             </StackPanel>
+
+            <!-- 按钮区域 -->
+            <Border Grid.Row="2" 
+                    Background="{DynamicResource ThemeSurfaceBrush}"
+                    CornerRadius="0,0,12,12"
+                    Padding="20,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="取消" Height="40"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding CancelClearChannelCommand}"/>
+                    <Button Grid.Column="2" Content="确认清零" Height="40"
+                            Style="{StaticResource DangerFilledButton}"
+                            Command="{Binding ConfirmClearChannelCommand}"/>
+                </Grid>
+            </Border>
         </Grid>
     </Border>
 </UserControl>
